@@ -10,12 +10,16 @@ public:
         mTransform(transform), mCollisionShape(collisionShape) {};
 
     void AddForce(Vec2 force);
+    void IntegrateVelocity(float timeStep);
+
+    const Isometry& GetTransform() const { return mTransform; }
 private:
     Isometry mTransform;
     IShape* mCollisionShape;
 
-    float mMass;
+    float mInverseMass;
     Vec2 mTotalForces;
+    Vec2 mVelocity;
 };
     
 } // namespace Solis::Phyiscs
