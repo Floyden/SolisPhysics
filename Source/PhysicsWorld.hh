@@ -1,7 +1,7 @@
 #pragma once
 #include "Defines.hh"
 #include "Shape/IShape.hh"
-#include "RigidBody.hh"
+#include "Dynamics/RigidBody.hh"
 #include <type_traits>
 
 namespace Solis::Physics

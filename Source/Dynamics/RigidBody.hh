@@ -8,9 +8,14 @@ class RigidBody {
 public:
     RigidBody (const Isometry& transform, IShape* collisionShape) : 
         mTransform(transform), mCollisionShape(collisionShape) {};
+
+    void AddForce(Vec2 force);
 private:
     Isometry mTransform;
     IShape* mCollisionShape;
+
+    float mMass;
+    Vec2 mTotalForces;
 };
     
 } // namespace Solis::Phyiscs
