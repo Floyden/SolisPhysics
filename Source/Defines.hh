@@ -8,6 +8,7 @@
 #include <map>
 #include <tuple>
 #include <concepts>
+#include <optional>
 
 #include <unordered_set>
 #include <unordered_map>
@@ -51,6 +52,9 @@ using String = std::string;
 
 template<class T1, class T2>
 using Pair = std::pair<T1, T2>;
+
+template<class T>
+using Optional = std::optional<T>;
 
 // Concepts
 template<class T, class U>
