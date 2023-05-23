@@ -8,10 +8,8 @@ namespace Solis::Physics
 {
 class World {
 public:
-    template<class Shape, class... Args>
+    template<Derived<IShape> Shape, class... Args>
     Shape* CreateShape(Args&&... args) {
-        static_assert(std::is_convertible<Shape*, IShape*>::value, "Class Shape must inherit from IShape");
-        
         auto* shape = mShapes.emplace_back(UPtr<IShape>(new Shape(std::forward<Args>(args)...))).get();
         return reinterpret_cast<Shape*>(shape);
     }

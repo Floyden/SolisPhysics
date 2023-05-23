@@ -7,6 +7,7 @@
 #include <queue>
 #include <map>
 #include <tuple>
+#include <concepts>
 
 #include <unordered_set>
 #include <unordered_map>
@@ -50,3 +51,7 @@ using String = std::string;
 
 template<class T1, class T2>
 using Pair = std::pair<T1, T2>;
+
+// Concepts
+template<class T, class U>
+concept Derived = std::is_base_of<U, T>::value;
