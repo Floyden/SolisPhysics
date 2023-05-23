@@ -9,10 +9,10 @@ struct AABB {
     Vec2 posMax;
 };
 
-
 class IShape {
 public:
     virtual ~IShape() = default;
-    virtual AABB ComputeLocalAABB() const = 0;
+    virtual AABB GetLocalAABB() const = 0;
+    virtual AABB GetAABB(const Isometry& isometry) const = 0;
 };
 } // namespace Solis::Physics
