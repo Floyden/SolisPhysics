@@ -22,14 +22,13 @@ using Vec4i = glm::ivec4;
 
 using Quaternion = glm::quat;
 
-struct Isometry3D {
-    Vec3 translation;
-    Quaternion rotation;
-};
-
 struct Isometry {
     Vec2 translation;
     Vec2 rotation;
+
+    Vec2 transform(const Vec2& point) const {
+        return point * glm::normalize(rotation) + translation;
+    }
 };
 
 };
