@@ -4,7 +4,7 @@
 namespace Solis::Physics
 {   
 //TODO: Move this somewhere appropriate
-struct AABB {
+struct Aabb {
     Vec2 posMin;
     Vec2 posMax;
 };
@@ -12,7 +12,7 @@ struct AABB {
 class IShape {
 public:
     virtual ~IShape() = default;
-    virtual AABB GetLocalAABB() const = 0;
-    virtual AABB GetAABB(const Isometry& isometry) const = 0;
+    virtual Aabb GetLocalAabb() const = 0;
+    virtual Aabb GetAabb(const Isometry& isometry) const = 0;
 };
 } // namespace Solis::Physics

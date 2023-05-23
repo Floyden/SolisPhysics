@@ -10,14 +10,14 @@ public:
     Cuboid(Vec2 halfExtends) : halfExtends(halfExtends) {};
     Cuboid(float halfExtend) : halfExtends(Vec2(halfExtend)) {};
 
-    AABB GetLocalAABB() const override { 
-        return AABB {
+    Aabb GetLocalAabb() const override { 
+        return Aabb {
             .posMin = -halfExtends,
             .posMax = halfExtends
         };
     }
 
-    AABB GetAABB(const Isometry& isometry) const override { 
+    Aabb GetAabb(const Isometry& isometry) const override { 
         auto transformedMin = isometry.transform(-halfExtends);
         auto transformedMax = isometry.transform(halfExtends);
 
@@ -25,7 +25,7 @@ public:
             if(transformedMin[i] > transformedMax[i])
                 std::swap(transformedMin[i], transformedMax[i]);
 
-        return AABB {
+        return Aabb {
             .posMin = transformedMin,
             .posMax = transformedMax
         };

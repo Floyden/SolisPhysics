@@ -9,16 +9,16 @@ public:
     Sphere(float radius) : radius(radius) {};
     virtual ~Sphere() = default;
 
-    AABB GetLocalAABB() const override { 
-        return AABB {
+    Aabb GetLocalAabb() const override { 
+        return Aabb {
             .posMin = Vec2(-radius),
             .posMax = Vec2(radius),
         };
     }
 
-    AABB GetAABB(const Isometry& isometry) const override { 
+    Aabb GetAabb(const Isometry& isometry) const override { 
         // Rotating a sphere does not change anything
-        return AABB {
+        return Aabb {
             .posMin = Vec2(-radius) + isometry.translation,
             .posMax = Vec2(radius) + isometry.translation,
         };
