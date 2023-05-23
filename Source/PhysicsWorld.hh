@@ -15,9 +15,10 @@ public:
         return reinterpret_cast<Shape*>(mShapes.back().get());
     }
 
-    void Obliterate() {
-
+    void Destroy() {
+        mShapes.clear();
     }
+
 private:
     Vector<UPtr<IShape>> mShapes;
 };
