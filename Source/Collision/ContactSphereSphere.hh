@@ -2,6 +2,7 @@
 #include "Shape/Sphere.hh"
 #include "Contact.hh"
 #include "Defines.hh"
+#include <iostream>
 
 namespace Solis::Physics
 {
@@ -12,7 +13,7 @@ Optional<ContactInfo> ComputeSphereSphereContact(const Sphere* sphere1, const Sp
     auto radius2 = sphere2->radius;
     auto distanceSquared = glm::length2(diff.translation);
     
-    if(distanceSquared > radius1 * radius1 + radius2 * radius2)
+    if(distanceSquared > (radius1 + radius2) * (radius2 + radius2))
         return {};
         
     auto normal1 = glm::normalize(diff.translation);
