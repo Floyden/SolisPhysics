@@ -6,7 +6,7 @@ namespace Solis::Physics
 
 class RigidBody
 {
-  public:
+public:
     RigidBody(const Isometry &transform, IShape *collisionShape)
         : mTransform(transform), mCollisionShape(collisionShape){};
 
@@ -18,7 +18,7 @@ class RigidBody
         return mTransform;
     }
 
-  private:
+private:
     Isometry mTransform;
     IShape *mCollisionShape;
 

@@ -12,7 +12,7 @@ struct Aabb
 
 class IShape
 {
-  public:
+public:
     virtual ~IShape() = default;
     virtual Aabb GetLocalAabb() const = 0;
     virtual Aabb GetAabb(const Isometry &isometry) const = 0;

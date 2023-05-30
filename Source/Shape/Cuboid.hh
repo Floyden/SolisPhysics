@@ -7,7 +7,7 @@ namespace Solis::Physics
 
 class Cuboid : public IShape
 {
-  public:
+public:
     Cuboid(Vec2 halfExtends) : halfExtends(halfExtends){};
     Cuboid(float halfExtend) : halfExtends(Vec2(halfExtend)){};
 

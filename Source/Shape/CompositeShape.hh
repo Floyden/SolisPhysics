@@ -7,7 +7,7 @@ namespace Solis::Physics
 
 class CompositeShape : public IShape
 {
-  public:
+public:
     void AddShape(Isometry isometry, IShape *shape)
     {
         children.emplace_back(isometry, shape);

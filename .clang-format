@@ -1,7 +1,7 @@
 ---
 Language:        Cpp
 # BasedOnStyle:  Microsoft
-AccessModifierOffset: -2
+AccessModifierOffset: -4
 AlignAfterOpenBracket: Align
 AlignArrayOfStructures: None
 AlignConsecutiveAssignments:
@@ -70,7 +70,7 @@ BraceWrapping:
   SplitEmptyFunction: false
   SplitEmptyRecord: false
   SplitEmptyNamespace: false
-BreakAfterAttributes: Never
+BreakAfterAttributes: Leave
 BreakAfterJavaFieldAnnotations: false
 BreakArrays:     true
 BreakBeforeBinaryOperators: None

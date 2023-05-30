@@ -8,7 +8,8 @@ namespace Solis::Physics
 {
 class World
 {
-  public:
+public:
+    
     template <Derived<IShape> Shape, class... Args>
     Shape *CreateShape(Args &&...args)
     {
@@ -27,7 +28,7 @@ class World
         mRigidBodies.clear();
     }
 
-  private:
+private:
     Vector<UPtr<IShape>> mShapes;
     Vector<UPtr<RigidBody>> mRigidBodies;
 };

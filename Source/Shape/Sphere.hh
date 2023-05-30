@@ -6,7 +6,7 @@ namespace Solis::Physics
 
 class Sphere : public IShape
 {
-  public:
+public:
     Sphere(float radius) : radius(radius){};
     virtual ~Sphere() = default;
 
