@@ -12,7 +12,12 @@ source = [
     'Source/Test.cc',
 ]
 
-
-executable('demo', source, 
+libphysics = library('SolisPhysics', source, 
     include_directories : [incdir], 
     dependencies : [libglm])
+
+e = executable('CollisionTest', 'Test/Collision.cc',
+    include_directories : [incdir], 
+    dependencies : [libglm])
+
+test('Collision', e)
