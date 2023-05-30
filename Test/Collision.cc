@@ -1,5 +1,5 @@
-#include <iostream>
 #include "Collision/ContactSphereSphere.hh"
+#include <iostream>
 
 void TestNoCollisionTwoSpheres()
 {
@@ -7,11 +7,7 @@ void TestNoCollisionTwoSpheres()
 
     Sphere s1{1.0};
     Sphere s2{2.0};
-    Solis::Isometry transform
-    {
-        .translation = glm::vec2{3.5, 0.},
-        .rotation = glm::vec2{1.0, 0.}
-    };
+    Solis::Isometry transform{.translation = glm::vec2{3.5, 0.}, .rotation = glm::vec2{1.0, 0.}};
 
     auto collisionInfo = ComputeSphereSphereContact(&s1, &s2, transform);
 
@@ -24,11 +20,7 @@ void TestCollisionTwoSpheres()
 
     Sphere s1{1.0};
     Sphere s2{2.0};
-    Solis::Isometry transform
-    {
-        .translation = glm::vec2{2.5, 0.},
-        .rotation = glm::vec2{-1.0, 0.}
-    };
+    Solis::Isometry transform{.translation = glm::vec2{2.5, 0.}, .rotation = glm::vec2{-1.0, 0.}};
 
     auto collisionInfo = ComputeSphereSphereContact(&s1, &s2, transform);
 
@@ -40,7 +32,7 @@ void TestCollisionTwoSpheres()
     assert(std::abs(collisionInfo->normal2.x + 1.0) < 0.01);
 }
 
-int main() 
+int main()
 {
     TestNoCollisionTwoSpheres();
     TestCollisionTwoSpheres();

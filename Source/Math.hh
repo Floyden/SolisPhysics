@@ -1,10 +1,10 @@
 #pragma once
 #include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 namespace Solis
 {
@@ -22,13 +22,15 @@ using Vec4i = glm::ivec4;
 
 using Quaternion = glm::quat;
 
-struct Isometry {
+struct Isometry
+{
     Vec2 translation;
     Vec2 rotation;
 
-    Vec2 transform(const Vec2& point) const {
+    Vec2 transform(const Vec2 &point) const
+    {
         return point * glm::normalize(rotation) + translation;
     }
 };
 
-};
+}; // namespace Solis
