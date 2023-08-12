@@ -26,5 +26,7 @@ void Sol_Isometry2DSub(Sol_Isometry2D* a, Sol_Isometry2D const* b);
 void Sol_Vec2Normalize(Sol_Vec2* v);
 /* Rotate the Vec2 around rotation r */
 void Sol_Vec2Rotate(Sol_Vec2* v, Sol_Vec2 const* rotation);
+/* Scale the Vec2 by scalar */
+void Sol_Vec2Scale(Sol_Vec2* v, Real scalar);
 
 #endif // SOL_MATH_H
