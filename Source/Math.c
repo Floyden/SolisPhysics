@@ -38,8 +38,8 @@ void Sol_Vec2Rotate(Sol_Vec2* v, Sol_Vec2 const* rotation)
 {
     Real x = v->x;
     Real y = v->y;
-    v->x = x * rotation->x + y * rotation->y;
-    v->y = y * rotation->x - x * rotation->y;
+    v->x = x * rotation->x - y * rotation->y;
+    v->y = x * rotation->y + y * rotation->x;
 }
 
 void Sol_Vec2Scale(Sol_Vec2* v, Real scalar)
