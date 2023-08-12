@@ -17,14 +17,12 @@ int Sol_CollisionCheckSphereSphere(Sol_ShapeSphere2D const* s1, Sol_ShapeSphere2
     Sol_Vec2 inverse_rotation = { difference->rotation[0], -difference->rotation[1] };
     Sol_Vec2Rotate(&contactInfo->normal2, &inverse_rotation);
 
-    
-/*
-    return ContactInfo{.point1 = radius1 * normal1,
-                       .point2 = radius2 * normal2,
-                       .normal1 = normal1,
-                       .normal2 = normal2,
-                       .distance = glm::sqrt(distanceSquared) - radius1 - radius2};
-*/
+    contactInfo->point1 = contactInfo->normal1;
+    contactInfo->point2 = contactInfo->normal2;
+    Sol_Vec2Scale(&contactInfo->point1, radius1);
+    Sol_Vec2Scale(&contactInfo->point2, radius2);
+
+    contactInfo->distance = sqrt(distanceSquared - radius1 - radius2);
     return 1;
 }
 
