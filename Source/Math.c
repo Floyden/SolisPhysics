@@ -1,7 +1,7 @@
 #include "Math.h"
 
 const Sol_Isometry2D Sol_ISOMETRY2D_IDENTITY = {
-    .translation = {{0.0}, {0.0}},
+    .translation = {0.0, 0.0},
     .rotation = {1.0, 0.0},
 };
 
@@ -46,4 +46,37 @@ void Sol_Vec2Scale(Sol_Vec2* v, Real scalar)
 {
     v->x *= scalar;
     v->y *= scalar;
+}
+
+void Sol_Vec2Add(Sol_Vec2* a, Sol_Vec2 const* b)
+{
+    a->x += b->x;
+    a->y += b->y;
+}
+
+void Sol_Vec2Sub(Sol_Vec2* a, Sol_Vec2 const* b)
+{
+    a->x -= b->x;
+    a->y -= b->y;
+}
+
+void Sol_Vec2MulAdd(Sol_Vec2* a, Sol_Vec2 const* b, Real x)
+{
+    a->x += b->x * x;
+    a->y += b->y * x;
+}
+
+Real Sol_Vec2Dot(Sol_Vec2 const* a, Sol_Vec2 const* b)
+{
+    return a->x * b->x + a->y * b->y;
+}
+
+Real Sol_Min(Real a, Real b)
+{
+    return a < b ? a : b;
+}
+
+Real Sol_Max(Real a, Real b)
+{
+    return a > b ? a : b;
 }
