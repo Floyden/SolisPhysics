@@ -1,4 +1,6 @@
 #include "CollisionShapes2D.h"
+#include <math.h>
+#include <stdio.h>
 
 int Sol_CollisionCheckSphereSphere(Sol_ShapeSphere2D const* s1, Sol_ShapeSphere2D const* s2, Sol_Isometry2D const* difference, Sol_CollisionContactInfo2D* contactInfo)
 {
@@ -26,14 +28,86 @@ int Sol_CollisionCheckSphereSphere(Sol_ShapeSphere2D const* s1, Sol_ShapeSphere2
     return 1;
 }
 
-int Sol_CollisionCheckCapsuleCapsule(Sol_ShapeCapsule2D const* c1, Sol_ShapeCapsule2D const* c2, Sol_Isometry2D const* difference, Sol_CollisionContactInfo2D* out_contactInfo);
-int Sol_CollisionCheckCapsuleRectangle(Sol_ShapeCapsule2D const* c, Sol_ShapeRectangle2D const* r, Sol_Isometry2D const* difference, Sol_CollisionContactInfo2D* out_contactInfo);
-int Sol_CollisionCheckCapsuleSegment(Sol_ShapeCapsule2D const* c, Sol_ShapeSegment2D const* s, Sol_Isometry2D const* difference, Sol_CollisionContactInfo2D* out_contactInfo);
-int Sol_CollisionCheckCapsuleSphere(Sol_ShapeCapsule2D const* c, Sol_ShapeSphere2D const* s, Sol_Isometry2D const* difference, Sol_CollisionContactInfo2D* out_contactInfo);
+int Sol_CollisionCheckCapsuleCapsule(Sol_ShapeCapsule2D const* c1, Sol_ShapeCapsule2D const* c2, Sol_Isometry2D const* difference, Sol_CollisionContactInfo2D* contactInfo);
+int Sol_CollisionCheckCapsuleRectangle(Sol_ShapeCapsule2D const* c, Sol_ShapeRectangle2D const* r, Sol_Isometry2D const* difference, Sol_CollisionContactInfo2D* contactInfo);
+int Sol_CollisionCheckCapsuleSegment(Sol_ShapeCapsule2D const* c, Sol_ShapeSegment2D const* s, Sol_Isometry2D const* difference, Sol_CollisionContactInfo2D* contactInfo);
+int Sol_CollisionCheckCapsuleSphere(Sol_ShapeCapsule2D const* c, Sol_ShapeSphere2D const* s, Sol_Isometry2D const* difference, Sol_CollisionContactInfo2D* contactInfo);
 
-int Sol_CollisionCheckRectangleRectangle(Sol_ShapeRectangle2D const* r1, Sol_ShapeRectangle2D const* r2, Sol_Isometry2D const* difference, Sol_CollisionContactInfo2D* out_contactInfo);
-int Sol_CollisionCheckRectangleSegment(Sol_ShapeRectangle2D const* r, Sol_ShapeSegment2D const* s, Sol_Isometry2D const* difference, Sol_CollisionContactInfo2D* out_contactInfo);
-int Sol_CollisionCheckRectangleSphere(Sol_ShapeRectangle2D const* r, Sol_ShapeSphere2D const* s, Sol_Isometry2D const* difference, Sol_CollisionContactInfo2D* out_contactInfo);
+void Sol_SwapIf(Sol_Vec2* a, Sol_Vec2* b, int condition)
+{
+    if (!condition)
+        return;
+    Sol_Vec2 tmp = *a;
+    *a = *b;
+    *b = tmp;
+}
 
-int Sol_CollisionCheckSegmentSegment(Sol_ShapeSegment2D const* s1, Sol_ShapeSegment2D const* s2, Sol_Isometry2D const* difference, Sol_CollisionContactInfo2D* out_contactInfo);
-int Sol_CollisionCheckSegmentSphere(Sol_ShapeSegment2D const* segment, Sol_ShapeSphere2D const* sphere, Sol_Isometry2D const* difference, Sol_CollisionContactInfo2D* out_contactInfo);
+int Sol_CheckRectangleRectangleCollisionAxis(Sol_ShapeRectangle2D const* r1, Sol_ShapeRectangle2D const* r2, Sol_Isometry2D const* difference)
+{
+    Real const halfHeight1 = r1->height / 2.0;
+    Real const halfWidth1 = r1->width / 2.0;
+    Real const halfHeight2 = r2->height / 2.0;
+    Real const halfWidth2 = r2->width / 2.0;
+
+    Sol_Vec2 dir1 = {1.0, 0.0};
+    Sol_Vec2 dir2 = {0.0, 1.0};
+    Sol_Vec2Rotate(&dir1, &difference->rotation);
+    Sol_Vec2Rotate(&dir2, &difference->rotation);
+    Sol_Vec2Scale(&dir1, halfWidth2);
+    Sol_Vec2Scale(&dir2, halfHeight2);
+
+    // Calculate the coordinates of the corners of r2
+    Sol_Vec2 corners2[4] = {dir1, dir1, dir1, dir1};
+    Sol_Vec2Add(&corners2[0], &dir2);
+    Sol_Vec2Sub(&corners2[1], &dir2);
+    Sol_Vec2Add(&corners2[2], &dir2);
+    Sol_Vec2Scale(&corners2[2], -1.0);
+    Sol_Vec2Scale(&corners2[3], -1.0);
+    Sol_Vec2Add(&corners2[3], &dir2);
+
+    Sol_Vec2Add(&corners2[0], &difference->translation);
+    Sol_Vec2Add(&corners2[1], &difference->translation);
+    Sol_Vec2Add(&corners2[2], &difference->translation);
+    Sol_Vec2Add(&corners2[3], &difference->translation);
+
+    Sol_SwapIf(&corners2[0], &corners2[1], corners2[0].x <  corners2[1].x);
+    Sol_SwapIf(&corners2[0], &corners2[2], corners2[0].x <  corners2[2].x);
+    Sol_SwapIf(&corners2[0], &corners2[3], corners2[0].x <  corners2[3].x);
+    Sol_SwapIf(&corners2[1], &corners2[2], corners2[1].x >  corners2[2].x);
+    Sol_SwapIf(&corners2[1], &corners2[3], corners2[1].x >  corners2[3].x);
+    Sol_SwapIf(&corners2[2], &corners2[3], corners2[2].y <  corners2[3].y);
+
+    if (corners2[0].x < -halfWidth1 || corners2[1].x > halfWidth1 || corners2[2].y < -halfHeight1 || corners2[3].y > halfHeight1)
+        return 0;
+
+    return 1;
+}
+
+int Sol_CollisionCheckRectangleRectangle(Sol_ShapeRectangle2D const* r1, Sol_ShapeRectangle2D const* r2, Sol_Isometry2D const* difference, Sol_CollisionContactInfo2D* contactInfo)
+{
+    Real const halfHeight1 = r1->height / 2.0;
+    Real const halfWidth1 = r1->width / 2.0;
+    Real const halfHeight2 = r2->height / 2.0;
+    Real const halfWidth2 = r2->width / 2.0;
+
+    // Calculate the orientation of the axis of r2
+    Sol_Vec2 dir1 = {1.0, 0.0};
+    Sol_Vec2 dir2 = {0.0, 1.0};
+
+    if (!Sol_CheckRectangleRectangleCollisionAxis(r1, r2, difference))
+        return 0;
+
+    Sol_Isometry2D inverseDifference = *difference;
+    Sol_Vec2Scale(&inverseDifference.translation, -1.0);
+    inverseDifference.rotation[1] *= -1.0;
+
+    if (!Sol_CheckRectangleRectangleCollisionAxis(r2, r1, &inverseDifference))
+        return 0;
+    return 1;
+}
+
+int Sol_CollisionCheckRectangleSegment(Sol_ShapeRectangle2D const* r, Sol_ShapeSegment2D const* s, Sol_Isometry2D const* difference, Sol_CollisionContactInfo2D* contactInfo);
+int Sol_CollisionCheckRectangleSphere(Sol_ShapeRectangle2D const* r, Sol_ShapeSphere2D const* s, Sol_Isometry2D const* difference, Sol_CollisionContactInfo2D* contactInfo);
+
+int Sol_CollisionCheckSegmentSegment(Sol_ShapeSegment2D const* s1, Sol_ShapeSegment2D const* s2, Sol_Isometry2D const* difference, Sol_CollisionContactInfo2D* contactInfo);
+int Sol_CollisionCheckSegmentSphere(Sol_ShapeSegment2D const* segment, Sol_ShapeSphere2D const* sphere, Sol_Isometry2D const* difference, Sol_CollisionContactInfo2D* contactInfo);
