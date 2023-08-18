@@ -7,4 +7,4 @@ source = [
     'Source/CollisionShapes2D.c',
 ]
 
-executable('demo', source)
+executable('demo', source, link_args : '-lm')
