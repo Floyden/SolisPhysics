@@ -43,7 +43,12 @@ void Sol_SwapIf(Sol_Vec2* a, Sol_Vec2* b, int condition)
     *b = tmp;
 }
 
-int Sol_CheckRectangleRectangleCollisionAxis(Sol_ShapeRectangle2D const* r1, Sol_ShapeRectangle2D const* r2, Sol_Isometry2D const* difference)
+/**
+ * Projects r2 onto the two spanning axis of r1. 
+ * Returns 0 if there is a seperating axis and 1 if there is none. 
+ * Also writes the colliding corner into closestCorner, if that corner collides.
+*/
+int Sol_CheckRectangleRectangleCollisionAxis(Sol_ShapeRectangle2D const* r1, Sol_ShapeRectangle2D const* r2, Sol_Isometry2D const* difference, Sol_Vec2* closestCorner)
 {
     Real const halfHeight1 = r1->height / 2.0;
     Real const halfWidth1 = r1->width / 2.0;
@@ -81,31 +86,32 @@ int Sol_CheckRectangleRectangleCollisionAxis(Sol_ShapeRectangle2D const* r1, Sol
     if (corners2[0].x < -halfWidth1 || corners2[1].x > halfWidth1 || corners2[2].y < -halfHeight1 || corners2[3].y > halfHeight1)
         return 0;
 
-    Sol_Vec2 closestCorner;
     if (corners2[0].x <= halfWidth1 && corners2[0].y >= -halfHeight1 && corners2[0].y <= halfHeight1) 
-        closestCorner = corners2[0];
+        *closestCorner = corners2[0];
     else if (corners2[1].x >= -halfWidth1 && corners2[1].y >= -halfHeight1 && corners2[1].y <= halfHeight1)
-        closestCorner = corners2[1];
+        *closestCorner = corners2[1];
     else if (corners2[2].y <= halfHeight1 && corners2[2].x >= -halfWidth1 && corners2[2].x <= halfWidth1) 
-        closestCorner = corners2[2];
+        *closestCorner = corners2[2];
     else if (corners2[3].y >= -halfHeight1 && corners2[3].x >= -halfWidth1 && corners2[3].x <= halfWidth1) 
-        closestCorner = corners2[3];
+        *closestCorner = corners2[3];
 
     return 1;
 }
 
 int Sol_CollisionCheckRectangleRectangle(Sol_ShapeRectangle2D const* r1, Sol_ShapeRectangle2D const* r2, Sol_Isometry2D const* difference, Sol_CollisionContactInfo2D* contactInfo)
 {
-
-    if (!Sol_CheckRectangleRectangleCollisionAxis(r1, r2, difference))
+    Sol_Vec2 corner1 = {0.0, 0.0};
+    if (!Sol_CheckRectangleRectangleCollisionAxis(r1, r2, difference, &corner1))
         return 0;
 
     Sol_Isometry2D inverseDifference = *difference;
     Sol_Vec2Scale(&inverseDifference.translation, -1.0);
     inverseDifference.rotation.y *= -1.0;
 
-    if (!Sol_CheckRectangleRectangleCollisionAxis(r2, r1, &inverseDifference))
+    Sol_Vec2 corner2 = {0.0, 0.0};
+    if (!Sol_CheckRectangleRectangleCollisionAxis(r2, r1, &inverseDifference, &corner2))
         return 0;
+
     return 1;
 }
 
