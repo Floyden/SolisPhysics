@@ -85,3 +85,10 @@ Real Sol_Vec2Length(Sol_Vec2 const* a)
 {
     return sqrt(Sol_Vec2Dot(a, a));
 }
+
+void Sol_Vec2RotateRad(Sol_Vec2* v, Real a)
+{
+    Sol_Vec2 tmp = *v;
+    v->x = tmp.x * cos(a) - tmp.y * sin(a);
+    v->y = tmp.x * sin(a) + tmp.y * cos(a);
+}

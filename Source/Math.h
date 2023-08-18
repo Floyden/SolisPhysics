@@ -26,6 +26,8 @@ void Sol_Isometry2DSub(Sol_Isometry2D* a, Sol_Isometry2D const* b);
 void Sol_Vec2Normalize(Sol_Vec2* v);
 /* Rotate the Vec2 around rotation r */
 void Sol_Vec2Rotate(Sol_Vec2* v, Sol_Vec2 const* rotation);
+/* Rotate the Vec2 around angle a in rad */
+void Sol_Vec2RotateRad(Sol_Vec2* v, Real a);
 /* Scale the Vec2 by scalar */
 void Sol_Vec2Scale(Sol_Vec2* v, Real scalar);
 /* Return the dot product between the two vectors a and b */
