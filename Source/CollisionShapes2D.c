@@ -16,7 +16,8 @@ int Sol_CollisionCheckSphereSphere(Sol_ShapeSphere2D const* s1, Sol_ShapeSphere2
     Sol_Vec2Normalize(&contactInfo->normal1);
     
     contactInfo->normal2 = contactInfo->normal1;
-    Sol_Vec2 inverse_rotation = { difference->rotation[0], -difference->rotation[1] };
+    Sol_Vec2 inverse_rotation = difference->rotation;
+    inverse_rotation.y *= -1.0;
     Sol_Vec2Rotate(&contactInfo->normal2, &inverse_rotation);
 
     contactInfo->point1 = contactInfo->normal1;
@@ -95,21 +96,13 @@ int Sol_CheckRectangleRectangleCollisionAxis(Sol_ShapeRectangle2D const* r1, Sol
 
 int Sol_CollisionCheckRectangleRectangle(Sol_ShapeRectangle2D const* r1, Sol_ShapeRectangle2D const* r2, Sol_Isometry2D const* difference, Sol_CollisionContactInfo2D* contactInfo)
 {
-    Real const halfHeight1 = r1->height / 2.0;
-    Real const halfWidth1 = r1->width / 2.0;
-    Real const halfHeight2 = r2->height / 2.0;
-    Real const halfWidth2 = r2->width / 2.0;
-
-    // Calculate the orientation of the axis of r2
-    Sol_Vec2 dir1 = {1.0, 0.0};
-    Sol_Vec2 dir2 = {0.0, 1.0};
 
     if (!Sol_CheckRectangleRectangleCollisionAxis(r1, r2, difference))
         return 0;
 
     Sol_Isometry2D inverseDifference = *difference;
     Sol_Vec2Scale(&inverseDifference.translation, -1.0);
-    inverseDifference.rotation[1] *= -1.0;
+    inverseDifference.rotation.y *= -1.0;
 
     if (!Sol_CheckRectangleRectangleCollisionAxis(r2, r1, &inverseDifference))
         return 0;

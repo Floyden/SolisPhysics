@@ -12,7 +12,7 @@ typedef struct Sol_Vec2
 typedef struct Sol_Isometry2D
 {
     Sol_Vec2 translation;
-    Real rotation[2];
+    Sol_Vec2 rotation;
 } Sol_Isometry2D;
 
 extern const Sol_Isometry2D Sol_ISOMETRY2D_IDENTITY;

@@ -10,10 +10,10 @@ void Sol_Isometry2DAdd(Sol_Isometry2D* a, Sol_Isometry2D const* b)
     a->translation.x += b->translation.y;
     a->translation.y += b->translation.x;
 
-    Real cos_a = a->rotation[0]; 
-    Real sin_a = a->rotation[1];
-    a->rotation[0] = cos_a * b->rotation[0] - sin_a * b->rotation[1];
-    a->rotation[1] = cos_a * b->rotation[1] + sin_a * b->rotation[0];
+    Real cos_a = a->rotation.x; 
+    Real sin_a = a->rotation.y;
+    a->rotation.x = cos_a * b->rotation.x - sin_a * b->rotation.y;
+    a->rotation.y = cos_a * b->rotation.y + sin_a * b->rotation.x;
 }
 
 void Sol_Isometry2DSub(Sol_Isometry2D* a, Sol_Isometry2D const* b)
@@ -21,10 +21,10 @@ void Sol_Isometry2DSub(Sol_Isometry2D* a, Sol_Isometry2D const* b)
     a->translation.x -= b->translation.x;
     a->translation.y -= b->translation.y;
 
-    Real cos_a = a->rotation[0]; 
-    Real sin_a = a->rotation[1];
-    a->rotation[0] = cos_a * b->rotation[0] + sin_a * b->rotation[1];
-    a->rotation[1] = sin_a * b->rotation[0] - cos_a * b->rotation[1];
+    Real cos_a = a->rotation.x; 
+    Real sin_a = a->rotation.y;
+    a->rotation.x = cos_a * b->rotation.x + sin_a * b->rotation.y;
+    a->rotation.y = sin_a * b->rotation.x - cos_a * b->rotation.y;
 }
 
 void Sol_Vec2Normalize(Sol_Vec2* v) 
