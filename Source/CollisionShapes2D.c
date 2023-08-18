@@ -43,6 +43,16 @@ void Sol_SwapIf(Sol_Vec2* a, Sol_Vec2* b, int condition)
     *b = tmp;
 }
 
+void _Sol_ReplaceIfCloser(Sol_Vec2* closest, Sol_Vec2 const* corner, Real* closestDistance)
+{
+    Real distance = Sol_Vec2Length(corner);
+    if(distance < *closestDistance)
+    {
+        *closestDistance = distance;
+        *closest = *corner;
+    }
+}
+
 /**
  * Projects r2 onto the two spanning axis of r1. 
  * Returns 0 if there is a seperating axis and 1 if there is none. 
@@ -86,31 +96,46 @@ int Sol_CheckRectangleRectangleCollisionAxis(Sol_ShapeRectangle2D const* r1, Sol
     if (corners2[0].x < -halfWidth1 || corners2[1].x > halfWidth1 || corners2[2].y < -halfHeight1 || corners2[3].y > halfHeight1)
         return 0;
 
-    if (corners2[0].x <= halfWidth1 && corners2[0].y >= -halfHeight1 && corners2[0].y <= halfHeight1) 
-        *closestCorner = corners2[0];
-    else if (corners2[1].x >= -halfWidth1 && corners2[1].y >= -halfHeight1 && corners2[1].y <= halfHeight1)
-        *closestCorner = corners2[1];
-    else if (corners2[2].y <= halfHeight1 && corners2[2].x >= -halfWidth1 && corners2[2].x <= halfWidth1) 
-        *closestCorner = corners2[2];
-    else if (corners2[3].y >= -halfHeight1 && corners2[3].x >= -halfWidth1 && corners2[3].x <= halfWidth1) 
-        *closestCorner = corners2[3];
+    Real closestDistance = INFINITY;
+    if (corners2[0].x <= halfWidth1 && corners2[0].y >= -halfHeight1 && corners2[0].y <= halfHeight1)
+        _Sol_ReplaceIfCloser(closestCorner, &corners2[0], &closestDistance);
+    if (corners2[1].x >= -halfWidth1 && corners2[1].y >= -halfHeight1 && corners2[1].y <= halfHeight1)
+        _Sol_ReplaceIfCloser(closestCorner, &corners2[1], &closestDistance);
+    if (corners2[2].y <= halfHeight1 && corners2[2].x >= -halfWidth1 && corners2[2].x <= halfWidth1) 
+        _Sol_ReplaceIfCloser(closestCorner, &corners2[2], &closestDistance);
+    if (corners2[3].y >= -halfHeight1 && corners2[3].x >= -halfWidth1 && corners2[3].x <= halfWidth1) 
+        _Sol_ReplaceIfCloser(closestCorner, &corners2[3], &closestDistance);
 
     return 1;
 }
 
 int Sol_CollisionCheckRectangleRectangle(Sol_ShapeRectangle2D const* r1, Sol_ShapeRectangle2D const* r2, Sol_Isometry2D const* difference, Sol_CollisionContactInfo2D* contactInfo)
 {
-    Sol_Vec2 corner1 = {0.0, 0.0};
-    if (!Sol_CheckRectangleRectangleCollisionAxis(r1, r2, difference, &corner1))
+    Sol_Vec2 corner2 = {0.0, 0.0};
+    if (!Sol_CheckRectangleRectangleCollisionAxis(r1, r2, difference, &corner2))
         return 0;
 
     Sol_Isometry2D inverseDifference = *difference;
     Sol_Vec2Scale(&inverseDifference.translation, -1.0);
     inverseDifference.rotation.y *= -1.0;
 
-    Sol_Vec2 corner2 = {0.0, 0.0};
-    if (!Sol_CheckRectangleRectangleCollisionAxis(r2, r1, &inverseDifference, &corner2))
+    Sol_Vec2 corner1 = {0.0, 0.0};
+    if (!Sol_CheckRectangleRectangleCollisionAxis(r2, r1, &inverseDifference, &corner1))
         return 0;
+    
+    if(corner1.x == 0.0 && corner1.y == 0.0)
+    {
+        Sol_Vec2Add(&corner2, &inverseDifference.translation);
+        Sol_Vec2Rotate(&corner2, &inverseDifference.rotation);
+        
+    } else
+    {
+        Sol_Vec2Add(&corner1, &difference->translation);
+        Sol_Vec2Rotate(&corner1, &difference->rotation);
+
+    }
+    contactInfo->point1 = corner1;
+    contactInfo->point2 = corner2;
 
     return 1;
 }
