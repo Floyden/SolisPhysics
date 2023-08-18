@@ -80,6 +80,16 @@ int Sol_CheckRectangleRectangleCollisionAxis(Sol_ShapeRectangle2D const* r1, Sol
     if (corners2[0].x < -halfWidth1 || corners2[1].x > halfWidth1 || corners2[2].y < -halfHeight1 || corners2[3].y > halfHeight1)
         return 0;
 
+    Sol_Vec2 closestCorner;
+    if (corners2[0].x <= halfWidth1 && corners2[0].y >= -halfHeight1 && corners2[0].y <= halfHeight1) 
+        closestCorner = corners2[0];
+    else if (corners2[1].x >= -halfWidth1 && corners2[1].y >= -halfHeight1 && corners2[1].y <= halfHeight1)
+        closestCorner = corners2[1];
+    else if (corners2[2].y <= halfHeight1 && corners2[2].x >= -halfWidth1 && corners2[2].x <= halfWidth1) 
+        closestCorner = corners2[2];
+    else if (corners2[3].y >= -halfHeight1 && corners2[3].x >= -halfWidth1 && corners2[3].x <= halfWidth1) 
+        closestCorner = corners2[3];
+
     return 1;
 }
 
