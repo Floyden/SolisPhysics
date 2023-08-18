@@ -80,3 +80,8 @@ Real Sol_Max(Real a, Real b)
 {
     return a > b ? a : b;
 }
+
+Real Sol_Vec2Length(Sol_Vec2 const* a)
+{
+    return sqrt(Sol_Vec2Dot(a, a));
+}
