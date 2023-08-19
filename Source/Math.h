@@ -40,7 +40,10 @@ void Sol_Vec2Sub(Sol_Vec2* a, Sol_Vec2 const* b);
 /* Fused multiply add, calculate a + bx and save the result in a*/
 void Sol_Vec2MulAdd(Sol_Vec2* a, Sol_Vec2 const* b, Real x);
 
+/* Return the length of the vector. */
 Real Sol_Vec2Length(Sol_Vec2 const* a);
+/* Return the squared length of the vector. */
+Real Sol_Vec2Length2(Sol_Vec2 const* a);
 
 Real Sol_Min(Real a, Real b);
 Real Sol_Max(Real a, Real b);

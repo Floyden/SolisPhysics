@@ -81,9 +81,14 @@ Real Sol_Max(Real a, Real b)
     return a > b ? a : b;
 }
 
+Real Sol_Vec2Length2(Sol_Vec2 const* a)
+{
+    return a->x * a->x + a->y * a->y;
+}
+
 Real Sol_Vec2Length(Sol_Vec2 const* a)
 {
-    return sqrt(Sol_Vec2Dot(a, a));
+    return sqrt(Sol_Vec2Length2(a));
 }
 
 void Sol_Vec2RotateRad(Sol_Vec2* v, Real a)
