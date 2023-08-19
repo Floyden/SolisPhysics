@@ -1,7 +1,6 @@
 #include "CollisionShapes2D.h"
 #include <math.h>
 #include <stdio.h>
-#include <raylib.h>
 
 int Sol_CollisionCheckSphereSphere(Sol_ShapeSphere2D const* s1, Sol_ShapeSphere2D const* s2, Sol_Isometry2D const* difference, Sol_CollisionContactInfo2D* contactInfo)
 {
@@ -125,17 +124,14 @@ int Sol_CollisionCheckRectangleRectangle(Sol_ShapeRectangle2D const* r1, Sol_Sha
     if (!Sol_CheckRectangleRectangleCollisionAxis(r2, r1, &inverseDifference, &corner1))
         return 0;
     
-    if(corner1.x == 0.0 && corner1.y == 0.0)
+    // Inverse transform of the corner if it exists
+    if(corner1.x != 0.0 || corner1.y != 0.0)
     {
-        Sol_Vec2Add(&corner2, &inverseDifference.translation);
-        Sol_Vec2Rotate(&corner2, &inverseDifference.rotation);
-        
-    } else
-    {
-        Sol_Vec2Add(&corner1, &difference->translation);
         Sol_Vec2Rotate(&corner1, &difference->rotation);
-
+        Sol_Vec2Add(&corner1, &difference->translation);
     }
+
+
     contactInfo->point1 = corner1;
     contactInfo->point2 = corner2;
 
