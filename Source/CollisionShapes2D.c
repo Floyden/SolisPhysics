@@ -1,6 +1,7 @@
 #include "CollisionShapes2D.h"
 #include <math.h>
 #include <stdio.h>
+#include <raylib.h>
 
 int Sol_CollisionCheckSphereSphere(Sol_ShapeSphere2D const* s1, Sol_ShapeSphere2D const* s2, Sol_Isometry2D const* difference, Sol_CollisionContactInfo2D* contactInfo)
 {
@@ -86,12 +87,12 @@ int Sol_CheckRectangleRectangleCollisionAxis(Sol_ShapeRectangle2D const* r1, Sol
     Sol_Vec2Add(&corners2[2], &difference->translation);
     Sol_Vec2Add(&corners2[3], &difference->translation);
 
-    Sol_SwapIf(&corners2[0], &corners2[1], corners2[0].x <  corners2[1].x);
-    Sol_SwapIf(&corners2[0], &corners2[2], corners2[0].x <  corners2[2].x);
-    Sol_SwapIf(&corners2[0], &corners2[3], corners2[0].x <  corners2[3].x);
-    Sol_SwapIf(&corners2[1], &corners2[2], corners2[1].x >  corners2[2].x);
-    Sol_SwapIf(&corners2[1], &corners2[3], corners2[1].x >  corners2[3].x);
-    Sol_SwapIf(&corners2[2], &corners2[3], corners2[2].y <  corners2[3].y);
+    Sol_SwapIf(&corners2[0], &corners2[1], corners2[0].x < corners2[1].x);
+    Sol_SwapIf(&corners2[0], &corners2[2], corners2[0].x < corners2[2].x);
+    Sol_SwapIf(&corners2[0], &corners2[3], corners2[0].x < corners2[3].x);
+    Sol_SwapIf(&corners2[1], &corners2[2], corners2[1].x > corners2[2].x);
+    Sol_SwapIf(&corners2[1], &corners2[3], corners2[1].x > corners2[3].x);
+    Sol_SwapIf(&corners2[2], &corners2[3], corners2[2].y < corners2[3].y);
 
     if (corners2[0].x < -halfWidth1 || corners2[1].x > halfWidth1 || corners2[2].y < -halfHeight1 || corners2[3].y > halfHeight1)
         return 0;
@@ -118,6 +119,7 @@ int Sol_CollisionCheckRectangleRectangle(Sol_ShapeRectangle2D const* r1, Sol_Sha
     Sol_Isometry2D inverseDifference = *difference;
     Sol_Vec2Scale(&inverseDifference.translation, -1.0);
     inverseDifference.rotation.y *= -1.0;
+    Sol_Vec2Rotate(&inverseDifference.translation, &inverseDifference.rotation);
 
     Sol_Vec2 corner1 = {0.0, 0.0};
     if (!Sol_CheckRectangleRectangleCollisionAxis(r2, r1, &inverseDifference, &corner1))
