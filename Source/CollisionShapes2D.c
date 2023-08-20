@@ -2,8 +2,8 @@
 #include <math.h>
 #include <stdio.h>
 
-// sqrt(2.0) / 2.0
-static Real const HALF_SQRT_2 = 0.70710678118;
+// sqrt(2.0f) / 2.0f
+static Real const HALF_SQRT_2 = 0.70710678118f;
 
 int Sol_CollisionCheckSphereSphere(Sol_ShapeSphere2D const* s1, Sol_ShapeSphere2D const* s2, Sol_Isometry2D const* difference, Sol_CollisionContactInfo2D* contactInfo)
 {
@@ -20,7 +20,7 @@ int Sol_CollisionCheckSphereSphere(Sol_ShapeSphere2D const* s1, Sol_ShapeSphere2
     
     contactInfo->normal2 = contactInfo->normal1;
     Sol_Vec2 inverse_rotation = difference->rotation;
-    inverse_rotation.y *= -1.0;
+    inverse_rotation.y *= -1.0f;
     Sol_Vec2Rotate(&contactInfo->normal2, &inverse_rotation);
 
     contactInfo->point1 = contactInfo->normal1;
@@ -63,13 +63,13 @@ void _Sol_ReplaceIfCloser(Sol_Vec2* closest, Sol_Vec2 const* corner, Real* close
 */
 int Sol_CheckRectangleRectangleCollisionAxis(Sol_ShapeRectangle2D const* r1, Sol_ShapeRectangle2D const* r2, Sol_Isometry2D const* difference, Sol_Vec2* closestCorner)
 {
-    Real const halfHeight1 = r1->height / 2.0;
-    Real const halfWidth1 = r1->width / 2.0;
-    Real const halfHeight2 = r2->height / 2.0;
-    Real const halfWidth2 = r2->width / 2.0;
+    Real const halfHeight1 = r1->height / 2.0f;
+    Real const halfWidth1 = r1->width / 2.0f;
+    Real const halfHeight2 = r2->height / 2.0f;
+    Real const halfWidth2 = r2->width / 2.0f;
 
-    Sol_Vec2 dir1 = {1.0, 0.0};
-    Sol_Vec2 dir2 = {0.0, 1.0};
+    Sol_Vec2 dir1 = {1.0f, 0.0f};
+    Sol_Vec2 dir2 = {0.0f, 1.0f};
     Sol_Vec2Rotate(&dir1, &difference->rotation);
     Sol_Vec2Rotate(&dir2, &difference->rotation);
     Sol_Vec2Scale(&dir1, halfWidth2);
@@ -80,8 +80,8 @@ int Sol_CheckRectangleRectangleCollisionAxis(Sol_ShapeRectangle2D const* r1, Sol
     Sol_Vec2Add(&corners2[0], &dir2);
     Sol_Vec2Sub(&corners2[1], &dir2);
     Sol_Vec2Add(&corners2[2], &dir2);
-    Sol_Vec2Scale(&corners2[2], -1.0);
-    Sol_Vec2Scale(&corners2[3], -1.0);
+    Sol_Vec2Scale(&corners2[2], -1.0f);
+    Sol_Vec2Scale(&corners2[3], -1.0f);
     Sol_Vec2Add(&corners2[3], &dir2);
 
     Sol_Vec2Add(&corners2[0], &difference->translation);
@@ -114,22 +114,22 @@ int Sol_CheckRectangleRectangleCollisionAxis(Sol_ShapeRectangle2D const* r1, Sol
 
 int Sol_CollisionCheckRectangleRectangle(Sol_ShapeRectangle2D const* r1, Sol_ShapeRectangle2D const* r2, Sol_Isometry2D const* difference, Sol_CollisionContactInfo2D* contactInfo)
 {
-    Sol_Vec2 corner2 = {0.0, 0.0};
+    Sol_Vec2 corner2 = {0.0f, 0.0f};
     if (!Sol_CheckRectangleRectangleCollisionAxis(r1, r2, difference, &corner2))
         return 0;
 
     Sol_Isometry2D inverseDifference = *difference;
-    Sol_Vec2Scale(&inverseDifference.translation, -1.0);
-    inverseDifference.rotation.y *= -1.0;
+    Sol_Vec2Scale(&inverseDifference.translation, -1.0f);
+    inverseDifference.rotation.y *= -1.0f;
     Sol_Vec2Rotate(&inverseDifference.translation, &inverseDifference.rotation);
 
-    Sol_Vec2 corner1 = {0.0, 0.0};
+    Sol_Vec2 corner1 = {0.0f, 0.0f};
     if (!Sol_CheckRectangleRectangleCollisionAxis(r2, r1, &inverseDifference, &corner1))
         return 0;
     
     // Inverse transform of the corner if it exists
-    if (corner1.x != 0.0 || corner1.y != 0.0)
-    if (corner1.x != 0.0 || corner1.y != 0.0)
+    if (corner1.x != 0.0f || corner1.y != 0.0f)
+    if (corner1.x != 0.0f || corner1.y != 0.0f)
     {
         Sol_Vec2Rotate(&corner1, &difference->rotation);
         Sol_Vec2Add(&corner1, &difference->translation);
@@ -145,15 +145,15 @@ int Sol_CollisionCheckRectangleRectangle(Sol_ShapeRectangle2D const* r1, Sol_Sha
         Sol_Vec2 normal = corner1;
         Sol_Vec2Normalize(&normal);
         
-        Sol_Vec2 right = {1.0, 0.0};
-        Sol_Vec2 up = {0.0, 1.0};
+        Sol_Vec2 right = {1.0f, 0.0f};
+        Sol_Vec2 up = {0.0f, 1.0f};
         Real dotR = Sol_Vec2Dot(&normal, &right);
         Real dotU = Sol_Vec2Dot(&normal, &up);
 
         if (fabs(dotR) >= HALF_SQRT_2)
-            corner1.x = r1->width / 2.0 * (dotR > 0.0 ? 1.0 : -1.0);
+            corner1.x = r1->width / 2.0f * (dotR > 0.0f ? 1.0f : -1.0f);
         else if (fabs(dotU) >= HALF_SQRT_2)
-            corner1.y = r1->height / 2.0 * (dotU > 0.0 ? 1.0 : -1.0);
+            corner1.y = r1->height / 2.0f * (dotU > 0.0f ? 1.0f : -1.0f);
     }
     else if (corner2.x == 0 && corner2.y == 0) 
     {
@@ -164,15 +164,15 @@ int Sol_CollisionCheckRectangleRectangle(Sol_ShapeRectangle2D const* r1, Sol_Sha
         Sol_Vec2 normal = corner2;
         Sol_Vec2Normalize(&normal);
         
-        Sol_Vec2 right = {1.0, 0.0};
-        Sol_Vec2 up = {0.0, 1.0};
+        Sol_Vec2 right = {1.0f, 0.0f};
+        Sol_Vec2 up = {0.0f, 1.0f};
         Real dotR = Sol_Vec2Dot(&normal, &right);
         Real dotU = Sol_Vec2Dot(&normal, &up);
 
         if (fabs(dotR) >= HALF_SQRT_2)
-            corner2.x = r2->width / 2.0 * (dotR > 0.0 ? 1.0 : -1.0);
+            corner2.x = r2->width / 2.0f * (dotR > 0.0f ? 1.0f : -1.0f);
         else 
-            corner2.y = r2->height / 2.0 * (dotU > 0.0 ? 1.0 : -1.0);
+            corner2.y = r2->height / 2.0f * (dotU > 0.0f ? 1.0f : -1.0f);
             
         Sol_Vec2Rotate(&corner1, &difference->rotation);
         Sol_Vec2Add(&corner1, &difference->translation);
@@ -201,8 +201,8 @@ int Sol_CollisionCheckRectangleRectangle(Sol_ShapeRectangle2D const* r1, Sol_Sha
 int Sol_CollisionCheckRectangleSegment(Sol_ShapeRectangle2D const* r, Sol_ShapeSegment2D const* s, Sol_Isometry2D const* difference, Sol_CollisionContactInfo2D* contactInfo);
 int Sol_CollisionCheckRectangleSphere(Sol_ShapeRectangle2D const* r, Sol_ShapeSphere2D const* s, Sol_Isometry2D const* difference, Sol_CollisionContactInfo2D* contactInfo)
 {
-    Real const halfWidth = r->width / 2.0;
-    Real const halfHeight = r->height / 2.0;
+    Real const halfWidth = r->width / 2.0f;
+    Real const halfHeight = r->height / 2.0f;
     Sol_Vec2 const halfExtends = {halfWidth, halfHeight};
 
     Real const cornerDistance = Sol_Vec2Length(&halfExtends);
@@ -219,12 +219,12 @@ int Sol_CollisionCheckRectangleSphere(Sol_ShapeRectangle2D const* r, Sol_ShapeSp
     if (difference->translation.x <= halfWidth && difference->translation.x >= -halfWidth)
         contactInfo->point1.x = difference->translation.x;
     else 
-        contactInfo->point1.x = halfWidth * (difference->translation.x > 0.0 ? 1.0 : -1.0);
+        contactInfo->point1.x = halfWidth * (difference->translation.x > 0.0f ? 1.0f : -1.0f);
 
     if (difference->translation.y <= halfHeight && difference->translation.y >= -halfHeight)
         contactInfo->point1.y = difference->translation.y;
     else 
-        contactInfo->point1.y = halfHeight * (difference->translation.y > 0.0 ? 1.0 : -1.0);
+        contactInfo->point1.y = halfHeight * (difference->translation.y > 0.0f ? 1.0f : -1.0f);
 
     contactInfo->normal1 = contactInfo->point1;
     Sol_Vec2Normalize(&contactInfo->normal1);
@@ -241,7 +241,7 @@ int Sol_CollisionCheckRectangleSphere(Sol_ShapeRectangle2D const* r, Sol_ShapeSp
     Sol_Vec2 diff = contactInfo->point2;
     Sol_Vec2Sub(&diff, &contactInfo->point2);
     contactInfo->distance = Sol_Vec2Length(&diff);
-    
+
     return 1;
 }
 
