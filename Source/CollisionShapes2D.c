@@ -12,7 +12,7 @@ int Sol_CollisionCheckSphereSphere(Sol_ShapeSphere2D const* s1, Sol_ShapeSphere2
     Real distanceSquared = difference->translation.x * difference->translation.x + 
         difference->translation.y + difference->translation.y;
 
-    if (distanceSquared > (radius1 + radius2) * (radius2 + radius2))
+    if (distanceSquared > (radius1 + radius2) * (radius1 + radius2))
         return 0;
 
     contactInfo->normal1 = difference->translation;
@@ -171,7 +171,7 @@ int Sol_CollisionCheckRectangleRectangle(Sol_ShapeRectangle2D const* r1, Sol_Sha
 
         if (fabs(dotR) >= HALF_SQRT_2)
             corner2.x = r2->width / 2.0 * (dotR > 0.0 ? 1.0 : -1.0);
-        else if (fabs(dotU) >= HALF_SQRT_2)
+        else 
             corner2.y = r2->height / 2.0 * (dotU > 0.0 ? 1.0 : -1.0);
             
         Sol_Vec2Rotate(&corner1, &difference->rotation);
@@ -199,7 +199,51 @@ int Sol_CollisionCheckRectangleRectangle(Sol_ShapeRectangle2D const* r1, Sol_Sha
 }
 
 int Sol_CollisionCheckRectangleSegment(Sol_ShapeRectangle2D const* r, Sol_ShapeSegment2D const* s, Sol_Isometry2D const* difference, Sol_CollisionContactInfo2D* contactInfo);
-int Sol_CollisionCheckRectangleSphere(Sol_ShapeRectangle2D const* r, Sol_ShapeSphere2D const* s, Sol_Isometry2D const* difference, Sol_CollisionContactInfo2D* contactInfo);
+int Sol_CollisionCheckRectangleSphere(Sol_ShapeRectangle2D const* r, Sol_ShapeSphere2D const* s, Sol_Isometry2D const* difference, Sol_CollisionContactInfo2D* contactInfo)
+{
+    Real const halfWidth = r->width / 2.0;
+    Real const halfHeight = r->height / 2.0;
+    Sol_Vec2 const halfExtends = {halfWidth, halfHeight};
+
+    Real const cornerDistance = Sol_Vec2Length(&halfExtends);
+
+    if(Sol_Vec2Length2(&difference->translation) > (cornerDistance + s->radius) * (cornerDistance + s->radius))
+        return 0;
+    
+    if (difference->translation.x + s->radius < -halfWidth || 
+        difference->translation.x - s->radius > halfWidth || 
+        difference->translation.y + s->radius < -halfHeight || 
+        difference->translation.y - s->radius > halfHeight)
+        return 0;
+    
+    if (difference->translation.x <= halfWidth && difference->translation.x >= -halfWidth)
+        contactInfo->point1.x = difference->translation.x;
+    else 
+        contactInfo->point1.x = halfWidth * (difference->translation.x > 0.0 ? 1.0 : -1.0);
+
+    if (difference->translation.y <= halfHeight && difference->translation.y >= -halfHeight)
+        contactInfo->point1.y = difference->translation.y;
+    else 
+        contactInfo->point1.y = halfHeight * (difference->translation.y > 0.0 ? 1.0 : -1.0);
+
+    contactInfo->normal1 = contactInfo->point1;
+    Sol_Vec2Normalize(&contactInfo->normal1);
+
+    Sol_Vec2 normal2 = difference->translation;
+    Sol_Vec2Sub(&normal2, &contactInfo->point1);
+    Sol_Vec2Normalize(&normal2);
+    
+    contactInfo->point2 = normal2;
+    contactInfo->normal2 = normal2;
+    Sol_Vec2Scale(&contactInfo->point2, -s->radius);
+    Sol_Vec2Add(&contactInfo->point2, &difference->translation);
+
+    Sol_Vec2 diff = contactInfo->point2;
+    Sol_Vec2Sub(&diff, &contactInfo->point2);
+    contactInfo->distance = Sol_Vec2Length(&diff);
+    
+    return 1;
+}
 
 int Sol_CollisionCheckSegmentSegment(Sol_ShapeSegment2D const* s1, Sol_ShapeSegment2D const* s2, Sol_Isometry2D const* difference, Sol_CollisionContactInfo2D* contactInfo);
 int Sol_CollisionCheckSegmentSphere(Sol_ShapeSegment2D const* segment, Sol_ShapeSphere2D const* sphere, Sol_Isometry2D const* difference, Sol_CollisionContactInfo2D* contactInfo);
