@@ -109,6 +109,11 @@ int Sol_CheckRectangleRectangleCollisionAxis(Sol_ShapeRectangle2D const* r1, Sol
     if (corners2[3].y >= -halfHeight1 && corners2[3].x >= -halfWidth1 && corners2[3].x <= halfWidth1) 
         _Sol_ReplaceIfCloser(closestCorner, &corners2[3], &closestDistance);
 
+    DrawCircleV(*(Vector2*)&corners2[0], 0.1, (Color){255,255,255,255});
+    DrawCircleV(*(Vector2*)&corners2[1], 0.1, (Color){255,255,255,255});
+    DrawCircleV(*(Vector2*)&corners2[2], 0.1, (Color){255,255,255,255});
+    DrawCircleV(*(Vector2*)&corners2[3], 0.1, (Color){255,255,255,255});
+
     return 1;
 }
 
@@ -129,11 +134,56 @@ int Sol_CollisionCheckRectangleRectangle(Sol_ShapeRectangle2D const* r1, Sol_Sha
     
     // Inverse transform of the corner if it exists
     if (corner1.x != 0.0 || corner1.y != 0.0)
+    if (corner1.x != 0.0 || corner1.y != 0.0)
     {
         Sol_Vec2Rotate(&corner1, &difference->rotation);
         Sol_Vec2Add(&corner1, &difference->translation);
     }
 
+    Sol_Vec2 diff = difference->translation;
+    Sol_Vec2Sub(&diff, &corner1);
+    
+
+    if (corner1.x == 0 && corner1.y == 0)
+    {
+        corner1 = corner2;
+        Sol_Vec2 normal = corner1;
+        Sol_Vec2Normalize(&normal);
+        
+        Sol_Vec2 right = {1.0, 0.0};
+        Sol_Vec2 up = {0.0, 1.0};
+        Real dotR = Sol_Vec2Dot(&normal, &right);
+        Real dotU = Sol_Vec2Dot(&normal, &up);
+
+        if (fabs(dotR) >= HALF_SQRT_2)
+            corner1.x = r1->width / 2.0 * (dotR > 0.0 ? 1.0 : -1.0);
+        else if (fabs(dotU) >= HALF_SQRT_2)
+            corner1.y = r1->height / 2.0 * (dotU > 0.0 ? 1.0 : -1.0);
+    }
+    else if (corner2.x == 0 && corner2.y == 0) 
+    {
+        Sol_Vec2Rotate(&corner1, &inverseDifference.rotation);
+        Sol_Vec2Add(&corner1, &inverseDifference.translation);
+
+        corner2 = corner1;
+        Sol_Vec2 normal = corner2;
+        Sol_Vec2Normalize(&normal);
+        
+        Sol_Vec2 right = {1.0, 0.0};
+        Sol_Vec2 up = {0.0, 1.0};
+        Real dotR = Sol_Vec2Dot(&normal, &right);
+        Real dotU = Sol_Vec2Dot(&normal, &up);
+
+        if (fabs(dotR) >= HALF_SQRT_2)
+            corner2.x = r2->width / 2.0 * (dotR > 0.0 ? 1.0 : -1.0);
+        else if (fabs(dotU) >= HALF_SQRT_2)
+            corner2.y = r2->height / 2.0 * (dotU > 0.0 ? 1.0 : -1.0);
+            
+        Sol_Vec2Rotate(&corner1, &difference->rotation);
+        Sol_Vec2Add(&corner1, &difference->translation);
+        Sol_Vec2Rotate(&corner2, &difference->rotation);
+        Sol_Vec2Add(&corner2, &difference->translation);
+    }
     Sol_Vec2 diff = difference->translation;
     Sol_Vec2Sub(&diff, &corner1);
     
