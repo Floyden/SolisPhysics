@@ -9,4 +9,9 @@
 #ifndef SOL_PRECISION
 #define SOL_PRECISION float
 #endif
+
+#ifndef SOL_INLINE
+#define SOL_INLINE static inline
+#endif
+
 typedef SOL_PRECISION Real;

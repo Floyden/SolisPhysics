@@ -23,29 +23,84 @@ void Sol_Isometry2DAdd(Sol_Isometry2D* a, Sol_Isometry2D const* b);
 void Sol_Isometry2DSub(Sol_Isometry2D* a, Sol_Isometry2D const* b);
 
 /* Normalize the given Vec2 */
-void Sol_Vec2Normalize(Sol_Vec2* v);
+SOL_INLINE void Sol_Vec2Normalize(Sol_Vec2* v) 
+{ 
+    Real len = sqrt(v->x * v->x + v->y * v->y); 
+    v->x /= len; 
+    v->y /= len; 
+}
+
 /* Rotate the Vec2 around rotation r */
-void Sol_Vec2Rotate(Sol_Vec2* v, Sol_Vec2 const* rotation);
+SOL_INLINE void Sol_Vec2Rotate(Sol_Vec2* v, Sol_Vec2 const* rotation)
+{
+    Real x = v->x;
+    Real y = v->y;
+    v->x = x * rotation->x - y * rotation->y;
+    v->y = x * rotation->y + y * rotation->x;
+}
+
 /* Rotate the Vec2 around angle a in rad */
-void Sol_Vec2RotateRad(Sol_Vec2* v, Real a);
+SOL_INLINE void Sol_Vec2RotateRad(Sol_Vec2* v, Real a)
+{
+    Sol_Vec2 tmp = *v;
+    v->x = tmp.x * cos(a) - tmp.y * sin(a);
+    v->y = tmp.x * sin(a) + tmp.y * cos(a);
+}
+
 /* Scale the Vec2 by scalar */
-void Sol_Vec2Scale(Sol_Vec2* v, Real scalar);
+SOL_INLINE void Sol_Vec2Scale(Sol_Vec2* v, Real scalar)
+{
+    v->x *= scalar;
+    v->y *= scalar;
+}
+
 /* Return the dot product between the two vectors a and b */
-Real Sol_Vec2Dot(Sol_Vec2 const* a, Sol_Vec2 const* b);
+SOL_INLINE Real Sol_Vec2Dot(Sol_Vec2 const* a, Sol_Vec2 const* b)
+{
+    return a->x * b->x + a->y * b->y;
+}
 
 /* Add two vectors and write the result in a */
-void Sol_Vec2Add(Sol_Vec2* a, Sol_Vec2 const* b);
+SOL_INLINE void Sol_Vec2Add(Sol_Vec2* a, Sol_Vec2 const* b)
+{
+    a->x += b->x;
+    a->y += b->y;
+}
+
 /* Subtract two vectors and write the result in a */
-void Sol_Vec2Sub(Sol_Vec2* a, Sol_Vec2 const* b);
+SOL_INLINE void Sol_Vec2Sub(Sol_Vec2* a, Sol_Vec2 const* b)
+{
+    a->x -= b->x;
+    a->y -= b->y;
+}
+
 /* Fused multiply add, calculate a + bx and save the result in a*/
-void Sol_Vec2MulAdd(Sol_Vec2* a, Sol_Vec2 const* b, Real x);
+SOL_INLINE void Sol_Vec2MulAdd(Sol_Vec2* a, Sol_Vec2 const* b, Real x)
+{
+    a->x += b->x * x;
+    a->y += b->y * x;
+}
+
+/* Return the squared length of the vector. */
+SOL_INLINE Real Sol_Vec2Length2(Sol_Vec2 const* a)
+{
+    return a->x * a->x + a->y * a->y;
+}
 
 /* Return the length of the vector. */
-Real Sol_Vec2Length(Sol_Vec2 const* a);
-/* Return the squared length of the vector. */
-Real Sol_Vec2Length2(Sol_Vec2 const* a);
+SOL_INLINE Real Sol_Vec2Length(Sol_Vec2 const* a)
+{
+    return sqrt(Sol_Vec2Length2(a));
+}
 
-Real Sol_Min(Real a, Real b);
-Real Sol_Max(Real a, Real b);
+SOL_INLINE Real Sol_Min(Real a, Real b)
+{
+    return a < b ? a : b;
+}
+
+SOL_INLINE Real Sol_Max(Real a, Real b)
+{
+    return a > b ? a : b;
+}
 
 #endif // SOL_MATH_H
