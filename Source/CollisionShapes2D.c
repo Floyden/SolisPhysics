@@ -129,7 +129,6 @@ int Sol_CollisionCheckRectangleRectangle(Sol_ShapeRectangle2D const* r1, Sol_Sha
     
     // Inverse transform of the corner if it exists
     if (corner1.x != 0.0f || corner1.y != 0.0f)
-    if (corner1.x != 0.0f || corner1.y != 0.0f)
     {
         Sol_Vec2Rotate(&corner1, &difference->rotation);
         Sol_Vec2Add(&corner1, &difference->translation);
