@@ -37,7 +37,7 @@ int Sol_CollisionCheckCapsuleRectangle(Sol_ShapeCapsule2D const* c, Sol_ShapeRec
 int Sol_CollisionCheckCapsuleSegment(Sol_ShapeCapsule2D const* c, Sol_ShapeSegment2D const* s, Sol_Isometry2D const* difference, Sol_CollisionContactInfo2D* contactInfo);
 int Sol_CollisionCheckCapsuleSphere(Sol_ShapeCapsule2D const* c, Sol_ShapeSphere2D const* s, Sol_Isometry2D const* difference, Sol_CollisionContactInfo2D* contactInfo);
 
-void Sol_SwapIf(Sol_Vec2* a, Sol_Vec2* b, int condition)
+inline void Sol_SwapIf(Sol_Vec2* a, Sol_Vec2* b, int condition)
 {
     if (!condition)
         return;
@@ -46,7 +46,7 @@ void Sol_SwapIf(Sol_Vec2* a, Sol_Vec2* b, int condition)
     *b = tmp;
 }
 
-void _Sol_ReplaceIfCloser(Sol_Vec2* closest, Sol_Vec2 const* corner, Real* closestDistance)
+inline void _Sol_ReplaceIfCloser(Sol_Vec2* closest, Sol_Vec2 const* corner, Real* closestDistance)
 {
     Real distance = Sol_Vec2Length(corner);
     if(distance < *closestDistance)
