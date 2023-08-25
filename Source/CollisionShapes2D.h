@@ -8,6 +8,11 @@ typedef struct Sol_ShapeCapsule2D
     Real height;
 } Sol_ShapeCapsule2D;
 
+typedef struct Sol_ShapeConvexPolygon2D
+{
+    Real *points;
+} Sol_ShapeConvexPolygon2D;
+
 typedef struct Sol_ShapeRectangle2D
 {
     Real width;
@@ -24,11 +29,6 @@ typedef struct Sol_ShapeSphere2D
     Real radius;
 } Sol_ShapeSphere2D;
 
-typedef struct Sol_ShapeConvexPolygon2D
-{
-    Real *points;
-} Sol_ShapeConvexPolygon2D;
-
 typedef struct Sol_CollisionContactInfo2D
 {
     Real distance;
@@ -37,6 +37,24 @@ typedef struct Sol_CollisionContactInfo2D
     Sol_Vec2 normal1;
     Sol_Vec2 normal2;
 } Sol_CollisionContactInfo2D;
+
+enum Sol_CollisionShape2DType 
+{
+    SOL_COLLISION_SHAPE_2D_CAPSULE,
+    SOL_COLLISION_SHAPE_2D_CONVEX_POLYGON,
+    SOL_COLLISION_SHAPE_2D_RECTANGLE,
+    SOL_COLLISION_SHAPE_2D_SEGMENT,
+    SOL_COLLISION_SHAPE_2D_SPHERE,
+};
+
+typedef union Sol_CollisionShape2D
+{
+    Sol_ShapeCapsule2D capsule;
+    Sol_ShapeConvexPolygon2D convexShape;
+    Sol_ShapeRectangle2D rectangle;
+    Sol_ShapeSegment2D segment;
+    Sol_ShapeSphere2D sphere;
+} Sol_CollisionShape2D;
 
 /**
  * \brief Check if two spheres collide.
