@@ -24,6 +24,11 @@ typedef struct Sol_ShapeSphere2D
     Real radius;
 } Sol_ShapeSphere2D;
 
+typedef struct Sol_ShapeConvexPolygon2D
+{
+    Real *points;
+} Sol_ShapeConvexPolygon2D;
+
 typedef struct Sol_CollisionContactInfo2D
 {
     Real distance;
