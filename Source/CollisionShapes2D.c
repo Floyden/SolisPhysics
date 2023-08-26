@@ -84,19 +84,20 @@ int Sol_CheckRectangleRectangleCollisionAxis(Sol_ShapeRectangle2D const* r1, Sol
     Sol_Vec2Scale(&corners2[3], -1.0f);
     Sol_Vec2Add(&corners2[3], &dir2);
 
+    int idx = fabs(corners2[0].x) > fabs(corners2[1].x);
+
     Sol_Vec2Add(&corners2[0], &difference->translation);
     Sol_Vec2Add(&corners2[1], &difference->translation);
     Sol_Vec2Add(&corners2[2], &difference->translation);
     Sol_Vec2Add(&corners2[3], &difference->translation);
-
-    Sol_SwapIf(&corners2[0], &corners2[1], corners2[0].x < corners2[1].x);
-    Sol_SwapIf(&corners2[0], &corners2[2], corners2[0].x < corners2[2].x);
-    Sol_SwapIf(&corners2[0], &corners2[3], corners2[0].x < corners2[3].x);
-    Sol_SwapIf(&corners2[1], &corners2[2], corners2[1].x > corners2[2].x);
-    Sol_SwapIf(&corners2[1], &corners2[3], corners2[1].x > corners2[3].x);
-    Sol_SwapIf(&corners2[2], &corners2[3], corners2[2].y < corners2[3].y);
-
-    if (corners2[0].x < -halfWidth1 || corners2[1].x > halfWidth1 || corners2[2].y < -halfHeight1 || corners2[3].y > halfHeight1)
+    
+    if (corners2[1-idx].x > corners2[3-idx].x && (corners2[1-idx].x < -halfWidth1 || corners2[3-idx].x > halfWidth1))
+        return 0;
+    if (corners2[1-idx].x < corners2[3-idx].x && (corners2[1-idx].x > halfWidth1 || corners2[3-idx].x < -halfWidth1))
+        return 0;
+    if (corners2[0+idx].y > corners2[2+idx].y && (corners2[0+idx].y < -halfHeight1 || corners2[2+idx].y > halfHeight1))
+        return 0;
+    if (corners2[0+idx].y < corners2[2+idx].y && (corners2[0+idx].y > halfHeight1 || corners2[2+idx].y < -halfHeight1))
         return 0;
 
     Real closestDistance = Sol_Vec2Length2(&corners2[0]);
