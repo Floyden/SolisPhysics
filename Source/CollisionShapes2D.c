@@ -99,15 +99,17 @@ int Sol_CheckRectangleRectangleCollisionAxis(Sol_ShapeRectangle2D const* r1, Sol
     if (corners2[0].x < -halfWidth1 || corners2[1].x > halfWidth1 || corners2[2].y < -halfHeight1 || corners2[3].y > halfHeight1)
         return 0;
 
-    Real closestDistance = INFINITY;
-    if (corners2[0].x <= halfWidth1 && corners2[0].y >= -halfHeight1 && corners2[0].y <= halfHeight1)
-        _Sol_ReplaceIfCloser(closestCorner, &corners2[0], &closestDistance);
-    if (corners2[1].x >= -halfWidth1 && corners2[1].y >= -halfHeight1 && corners2[1].y <= halfHeight1)
-        _Sol_ReplaceIfCloser(closestCorner, &corners2[1], &closestDistance);
-    if (corners2[2].y <= halfHeight1 && corners2[2].x >= -halfWidth1 && corners2[2].x <= halfWidth1) 
-        _Sol_ReplaceIfCloser(closestCorner, &corners2[2], &closestDistance);
-    if (corners2[3].y >= -halfHeight1 && corners2[3].x >= -halfWidth1 && corners2[3].x <= halfWidth1) 
-        _Sol_ReplaceIfCloser(closestCorner, &corners2[3], &closestDistance);
+    Real closestDistance = Sol_Vec2Length2(&corners2[0]);
+    *closestCorner = corners2[0];
+
+    for (int i = 1; i < 4; i++)
+    {
+        Real tmpDistance = Sol_Vec2Length2(&corners2[i]);
+        if (tmpDistance > closestDistance)
+            continue;
+        closestDistance = tmpDistance;
+        *closestCorner = corners2[i];
+    }
 
     return 1;
 }
