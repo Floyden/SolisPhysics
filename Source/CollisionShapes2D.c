@@ -111,6 +111,9 @@ int Sol_CheckRectangleRectangleCollisionAxis(Sol_ShapeRectangle2D const* r1, Sol
         closestDistance = tmpDistance;
         *closestCorner = corners2[i];
     }
+    
+    if (closestCorner->x < -halfWidth1 || closestCorner->x > halfWidth1 || closestCorner->y < -halfHeight1 || closestCorner->y > halfHeight1)
+        *closestCorner = (Sol_Vec2) {0.0, 0.0};
 
     return 1;
 }
@@ -136,10 +139,6 @@ int Sol_CollisionCheckRectangleRectangle(Sol_ShapeRectangle2D const* r1, Sol_Sha
         Sol_Vec2Rotate(&corner1, &difference->rotation);
         Sol_Vec2Add(&corner1, &difference->translation);
     }
-
-    Sol_Vec2 diff = difference->translation;
-    Sol_Vec2Sub(&diff, &corner1);
-    
 
     if (corner1.x == 0 && corner1.y == 0)
     {
