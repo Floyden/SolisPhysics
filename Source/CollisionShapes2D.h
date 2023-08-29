@@ -80,4 +80,4 @@ int Sol_CollisionCheckCapsuleSegment(Sol_ShapeCapsule2D const* c, Sol_ShapeSegme
 int Sol_CollisionCheckCapsuleSphere(Sol_ShapeCapsule2D const* c, Sol_ShapeSphere2D const* s, Sol_Isometry2D const* difference, Sol_CollisionContactInfo2D* contactInfo);
 
 
-#endif SOL_COLLISION_SHAPES_2D
+#endif // SOL_COLLISION_SHAPES_2D
