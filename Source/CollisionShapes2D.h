@@ -39,14 +39,14 @@ typedef struct Sol_CollisionContactInfo2D
     Sol_Vec2 normal2;
 } Sol_CollisionContactInfo2D;
 
-enum Sol_CollisionShape2DType 
+typedef enum Sol_CollisionShape2DType 
 {
     SOL_COLLISION_SHAPE_2D_CAPSULE,
     SOL_COLLISION_SHAPE_2D_CONVEX_POLYGON,
     SOL_COLLISION_SHAPE_2D_RECTANGLE,
     SOL_COLLISION_SHAPE_2D_SEGMENT,
     SOL_COLLISION_SHAPE_2D_SPHERE,
-};
+} Sol_CollisionShape2DType;
 
 typedef union Sol_CollisionShape2D
 {
