@@ -112,7 +112,7 @@ int Sol_CheckRectangleRectangleCollisionAxis(Sol_ShapeRectangle2D const* r1, Sol
         *closestCorner = corners2[i];
     }
     
-    if (closestCorner->x < -halfWidth1 || closestCorner->x > halfWidth1 || closestCorner->y < -halfHeight1 || closestCorner->y > halfHeight1)
+    if ((closestCorner->x < -halfWidth1 || closestCorner->x > halfWidth1) && (closestCorner->y < -halfHeight1 || closestCorner->y > halfHeight1))
         *closestCorner = (Sol_Vec2) {0.0, 0.0};
 
     return 1;
