@@ -33,20 +33,22 @@ pub const CollisionShape = union(enum) {
     sphere: Sphere,
 };
 
-pub const CollisionInfo = struct {};
+pub const CollisionInfo = struct {
+    value: []const u8,
+};
 
 pub fn checkRectangleRectangleCollision(rect1: Rectangle, rect2: Rectangle, transform: Transform) ?CollisionInfo {
     _ = rect1;
     _ = rect2;
     _ = transform;
-    return null;
+    return CollisionInfo{ .value = "Rect" };
 }
 
 pub fn checkRectangleSphereCollision(rect: Rectangle, sphere: Sphere, transform: Transform) ?CollisionInfo {
     _ = rect;
     _ = sphere;
     _ = transform;
-    return null;
+    return CollisionInfo{ .value = "Sphere" };
 }
 
 inline fn checkCollisionsRectangleShape(rectangle: Rectangle, shape: CollisionShape, transform: Transform) ?CollisionInfo {
