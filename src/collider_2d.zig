@@ -9,6 +9,8 @@ pub const Collider2D = struct {
     transform: Transform,
 };
 
-pub fn detectCollisions(colliders: *std.ArrayList(Collider2D)) std.ArrayList(CollisionInfo) {
+pub fn detectCollisions(colliders: std.ArrayList(Collider2D)) std.ArrayList(CollisionInfo) {
     _ = colliders;
+    var colliderArray = std.ArrayList(CollisionInfo).init(std.heap.page_allocator);
+    return colliderArray;
 }

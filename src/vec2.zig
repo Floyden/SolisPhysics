@@ -18,8 +18,18 @@ pub const Vec2 = struct {
         return self.x * self.x + self.y * self.y;
     }
 
-    pub inline fn dot(self: Vec2, other: *const Vec2) f32 {
-        return self.x * other.*.x + self.y * other.*.y;
+    pub inline fn dot(self: Vec2, other: Vec2) f32 {
+        return self.x * other.x + self.y * other.y;
+    }
+
+    pub inline fn add(self: Vec2, other: Vec2) void {
+        self.x += other.x;
+        self.y += other.y;
+    }
+
+    pub inline fn subtract(self: *Vec2, other: Vec2) void {
+        self.x -= other.x;
+        self.y -= other.y;
     }
 
     pub inline fn normalize(self: *Vec2) void {
@@ -33,17 +43,17 @@ pub const Vec2 = struct {
         self.*.y *= scalar;
     }
 
-    pub inline fn scaled(self: *const Vec2, scalar: f32) Vec2 {
-        var res = self.*;
+    pub inline fn scaled(self: Vec2, scalar: f32) Vec2 {
+        var res = self;
         res.scale(scalar);
         return res;
     }
 
-    pub inline fn rotate(self: *Vec2, other: *const Vec2) void {
+    pub inline fn rotate(self: *Vec2, other: Vec2) void {
         const tX = self.*.x;
         const tY = self.*.y;
-        self.*.x = tX * other.*.x - tY * other.*.y;
-        self.*.y = tX * other.*.y + tY * other.*.x;
+        self.*.x = tX * other.x - tY * other.y;
+        self.*.y = tX * other.y + tY * other.x;
     }
 
     pub inline fn rotateRad(self: *Vec2, ang: f32) void {

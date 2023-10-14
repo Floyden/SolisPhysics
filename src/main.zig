@@ -20,8 +20,9 @@ pub fn main() !void {
     try colliderArray.append(Collider.Collider2D{ .shape = rect2Shape, .transform = transform });
 
     const res = Collider.detectCollisions(colliderArray);
-    if (res != null) {
-        std.debug.print("CollisionInfo {}\n", .{res.?});
+    defer res.deinit();
+    if (res.items.len != 0) {
+        std.debug.print("CollisionInfo {}\n", .{res});
     } else {
         std.debug.print("No Collision\n", .{});
     }
