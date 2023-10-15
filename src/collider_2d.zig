@@ -5,10 +5,7 @@ const CollisionInfo = CollisionShapes.CollisionInfo;
 const Transform = @import("transform.zig").Transform2D;
 const std = @import("std");
 
-pub const Collider2D = struct {
-    shape: CollisionShape,
-    transform: Transform,
-};
+pub const Collider2D = struct { shape: CollisionShape, transform: Transform, mass: f32 };
 
 pub fn detectCollisions(colliders: std.ArrayList(Collider2D)) std.ArrayList(CollisionInfo) {
     var colliderArray = std.ArrayList(CollisionInfo).init(std.heap.page_allocator);
