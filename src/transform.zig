@@ -4,6 +4,10 @@ pub const Transform2D = struct {
     translation: Vec2,
     rotation: Vec2,
 
+    pub fn identity() Transform2D {
+        return Transform2D.new(Vec2.zero(), Vec2.new(1.0, 0.0));
+    }
+
     pub fn new(translation: Vec2, rotation: Vec2) Transform2D {
         return Transform2D{ .translation = translation, .rotation = rotation };
     }
