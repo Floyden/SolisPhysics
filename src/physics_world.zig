@@ -1,6 +1,6 @@
 const std = @import("std");
 const Vec2 = @import("vec2.zig").Vec2;
-const Collider = @import("collider_2d.zig");
+const Colliders = @import("collider_2d.zig");
 
 pub const RigidBody = struct {
     colliderId: u64,
@@ -18,13 +18,13 @@ pub const RigidBody = struct {
 };
 
 pub const PhysicsWorld = struct {
-    colliderList: std.ArrayList(Collider.Collider2D),
+    colliderList: std.ArrayList(Colliders.Collider2D),
     rigidBodyList: std.ArrayList(RigidBody),
     gravity: Vec2,
 
     pub fn new() PhysicsWorld {
         return PhysicsWorld{
-            .colliderList = std.ArrayList(Collider.Collider2D).init(std.heap.page_allocator),
+            .colliderList = std.ArrayList(Colliders.Collider2D).init(std.heap.page_allocator),
             .rigidBodyList = std.ArrayList(RigidBody).init(std.heap.page_allocator),
             .gravity = Vec2.new(0.0, 9.81),
         };
@@ -35,9 +35,13 @@ pub const PhysicsWorld = struct {
         self.colliderList.deinit();
     }
 
-    pub fn addCollider(self: *PhysicsWorld, collider: Collider.Collider2D) u64 {
+    pub fn addCollider(self: *PhysicsWorld, collider: Colliders.Collider2D) u64 {
         self.colliderList.append(collider) catch unreachable;
         return self.colliderList.items.len - 1;
+    }
+
+    pub fn getCollider(self: *PhysicsWorld, id: u64) *Colliders.Collider2D {
+        return &self.colliderList.items[id];
     }
 
     pub fn addRigidBody(self: *PhysicsWorld, collider: RigidBody) u64 {
@@ -55,5 +59,11 @@ pub const PhysicsWorld = struct {
         for (self.rigidBodyList.item) |rb| {
             rb.applyForce(self.gravity);
         }
+    }
+
+    pub fn step(self: *PhysicsWorld, dt: f32) void {
+        const collisions = Colliders.detectCollisions(self.colliderList);
+        defer collisions.deinit();
+        _ = dt;
     }
 };
