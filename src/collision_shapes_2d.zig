@@ -11,14 +11,15 @@ pub const ConvexPolygon = struct {
 };
 
 pub const Rectangle = struct {
-    halfExtent: Vec2,
+    halfWidth: f32,
+    halfHeight: f32,
 
     pub inline fn new(halfWidth: f32, halfHeight: f32) Rectangle {
-        return Rectangle{ .halfExtent = Vec2.new(halfWidth, halfHeight) };
+        return Rectangle{ .halfWidth = halfWidth, .halfHeight = halfHeight };
     }
 
     pub inline fn fromVec(halfExtent: Vec2) Rectangle {
-        return Rectangle{ .halfExtent = halfExtent };
+        return Rectangle{ .halfWidth = halfExtent.x, .halfHeight = halfExtent.y };
     }
 };
 
