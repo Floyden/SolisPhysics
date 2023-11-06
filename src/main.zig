@@ -17,7 +17,7 @@ pub fn main() !void {
     var world = PhysicsWorld.new();
     defer world.deinit();
 
-    const rect1Shape = CollisionShape{ .rectangle = CollisionShapes.Rectangle.new(100.0, 50.0) };
+    const rect1Shape = CollisionShape{ .rectangle = CollisionShapes.Rectangle.new(50.0, 50.0) };
     const rect2Shape = CollisionShape{ .sphere = CollisionShapes.Sphere{ .radius = 50.0 } };
     const transform = Transform.fromTranslation(Vec2.new(200.0, 100.0));
 
@@ -31,12 +31,28 @@ pub fn main() !void {
     _ = world.addRigidBody(RigidBody{ .colliderId = c2, .velocity = Vec2.zero(), .forces = Vec2.zero(), .mass = 1.0 });
 
     while (!ray.WindowShouldClose()) {
+        ray.ClearBackground(ray.Color{ .r = 0, .g = 0, .b = 0, .a = 0 });
         ray.BeginDrawing();
+
+        const mouseX: f32 = @floatFromInt(ray.GetMouseX());
+        const mouseY: f32 = @floatFromInt(ray.GetMouseY());
+
+        if (ray.IsMouseButtonDown(0)) {
+            world.getCollider(c2).transform.translation.x = mouseX;
+            world.getCollider(c2).transform.translation.y = mouseY;
+        }
+        if (ray.IsMouseButtonDown(1)) {
+            world.getCollider(c1).transform.translation.x = mouseX;
+            world.getCollider(c1).transform.translation.y = mouseY;
+        }
 
         const r = world.getCollider(c1);
         const s = world.getCollider(c2);
         ray.DrawCircle(@intFromFloat(s.*.transform.translation.x), @intFromFloat(s.*.transform.translation.y), s.*.shape.sphere.radius, ray.MAROON);
-        ray.DrawRectangle(@intFromFloat(r.*.transform.translation.x), @intFromFloat(r.*.transform.translation.y), @intFromFloat(r.*.shape.rectangle.halfWidth), @intFromFloat(r.*.shape.rectangle.halfWidth), ray.GREEN);
+
+        const rExtent = r.shape.rectangle;
+        const rPos = r.transform.translation;
+        ray.DrawRectangle(@intFromFloat(rPos.x - rExtent.halfWidth), @intFromFloat(rPos.y - rExtent.halfHeight), @intFromFloat(2.0 * rExtent.halfWidth), @intFromFloat(2.0 * rExtent.halfHeight), ray.GREEN);
 
         ray.EndDrawing();
     }
