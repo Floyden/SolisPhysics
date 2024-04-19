@@ -10,6 +10,12 @@ const ray = @cImport({
     @cInclude("raylib.h");
 });
 
+fn drawPhysicsRectangle(collider: *Collider.Collider2D, color: ray.Color) void {
+    const rExtent = collider.shape.rectangle;
+    const rPos = collider.transform.translation;
+    ray.DrawRectangle(@intFromFloat(rPos.x - rExtent.halfWidth), @intFromFloat(rPos.y - rExtent.halfHeight), @intFromFloat(2.0 * rExtent.halfWidth), @intFromFloat(2.0 * rExtent.halfHeight), color);
+}
+
 pub fn main() !void {
     ray.InitWindow(600, 480, "Test");
     defer ray.CloseWindow();
@@ -18,7 +24,8 @@ pub fn main() !void {
     defer world.deinit();
 
     const rect1Shape = CollisionShape{ .rectangle = CollisionShapes.Rectangle.new(50.0, 50.0) };
-    const rect2Shape = CollisionShape{ .sphere = CollisionShapes.Sphere{ .radius = 50.0 } };
+    const rect2Shape = CollisionShape{ .rectangle = CollisionShapes.Rectangle.new(50.0, 50.0) };
+    // const rect2Shape = CollisionShape{ .sphere = CollisionShapes.Sphere{ .radius = 50.0 } };
     const transform = Transform.fromTranslation(Vec2.new(200.0, 100.0));
 
     var colliderArray = std.ArrayList(Collider.Collider2D).init(std.heap.page_allocator);
@@ -45,18 +52,16 @@ pub fn main() !void {
             world.getCollider(c1).transform.translation.x = mouseX;
             world.getCollider(c1).transform.translation.y = mouseY;
         }
+        world.step(16.0);
 
         const r = world.getCollider(c1);
         const s = world.getCollider(c2);
-        ray.DrawCircle(@intFromFloat(s.*.transform.translation.x), @intFromFloat(s.*.transform.translation.y), s.*.shape.sphere.radius, ray.MAROON);
-
-        const rExtent = r.shape.rectangle;
-        const rPos = r.transform.translation;
-        ray.DrawRectangle(@intFromFloat(rPos.x - rExtent.halfWidth), @intFromFloat(rPos.y - rExtent.halfHeight), @intFromFloat(2.0 * rExtent.halfWidth), @intFromFloat(2.0 * rExtent.halfHeight), ray.GREEN);
+        // ray.DrawCircle(@intFromFloat(s.*.transform.translation.x), @intFromFloat(s.*.transform.translation.y), s.*.shape.sphere.radius, ray.MAROON);
+        drawPhysicsRectangle(r, ray.GREEN);
+        drawPhysicsRectangle(s, ray.MAROON);
 
         ray.EndDrawing();
     }
-    world.step(16.0);
 
     const res = Collider.detectCollisions(world.colliderList);
     defer res.deinit();

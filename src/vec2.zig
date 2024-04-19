@@ -22,7 +22,7 @@ pub const Vec2 = struct {
         return self.x * other.x + self.y * other.y;
     }
 
-    pub inline fn add(self: Vec2, other: Vec2) void {
+    pub inline fn add(self: *Vec2, other: Vec2) void {
         self.x += other.x;
         self.y += other.y;
     }
@@ -33,7 +33,7 @@ pub const Vec2 = struct {
     }
 
     pub inline fn normalize(self: *Vec2) void {
-        var _len = self.len();
+        const _len = self.len();
         self.*.x /= _len;
         self.*.y /= _len;
     }

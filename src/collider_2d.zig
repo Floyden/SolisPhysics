@@ -7,21 +7,40 @@ const std = @import("std");
 
 pub const Collider2D = struct { shape: CollisionShape, transform: Transform, mass: f32 };
 
-pub fn detectCollisions(colliders: std.ArrayList(Collider2D)) std.ArrayList(CollisionInfo) {
-    var colliderArray = std.ArrayList(CollisionInfo).init(std.heap.page_allocator);
+pub const CollisionDetector2D = struct {
+    colliders: []const Collider2D,
+    index1: usize,
+    index2: usize,
 
-    for (colliders.items) |collider1| {
-        for (colliders.items) |collider2| {
-            if (std.meta.eql(collider1, collider2))
-                continue;
-
-            var offset = collider1.transform;
-            offset.translation.subtract(collider2.transform.translation);
-            offset.translation.rotate(collider2.transform.rotation.scaled(-1.0));
-            const res = CollisionShapes.checkCollisions(collider1.shape, collider2.shape, offset);
-            if (res != null)
-                colliderArray.append(res.?) catch unreachable;
-        }
+    pub fn new(colliders: []const Collider2D) CollisionDetector2D {
+        return CollisionDetector2D{ .colliders = colliders, .index1 = 0, .index2 = 0 };
     }
-    return colliderArray;
-}
+
+    pub fn nextCollision(self: *CollisionDetector2D) ?CollisionInfo {
+        var res: ?CollisionInfo = null;
+        var index1 = self.index1;
+        var index2 = self.index2;
+
+        outer: while (index1 < self.colliders.len) {
+            while (index2 < self.colliders.len) {
+                defer index2 += 1;
+                if (index1 == index2)
+                    continue;
+                const collider1 = self.colliders[index1];
+                const collider2 = self.colliders[index2];
+
+                var offset = collider1.transform;
+                offset.translation.subtract(collider2.transform.translation);
+                offset.translation.rotate(collider2.transform.rotation.scaled(-1.0));
+                res = CollisionShapes.checkCollisions(collider1.shape, collider2.shape, offset);
+                if (res != null) break :outer;
+            }
+            index1 += 1;
+            index2 = 0;
+        }
+
+        self.index1 = index1;
+        self.index2 = index2;
+        return res;
+    }
+};

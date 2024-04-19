@@ -62,8 +62,10 @@ pub const PhysicsWorld = struct {
     }
 
     pub fn step(self: *PhysicsWorld, dt: f32) void {
-        const collisions = Colliders.detectCollisions(self.colliderList);
-        defer collisions.deinit();
+        var detector = Colliders.CollisionDetector2D.new(self.colliderList.items);
+        while (detector.nextCollision()) |collision| {
+            _ = collision;
+        }
         _ = dt;
     }
 };
