@@ -62,12 +62,4 @@ pub fn main() !void {
 
         ray.EndDrawing();
     }
-
-    const res = Collider.detectCollisions(world.colliderList);
-    defer res.deinit();
-    if (res.items.len != 0) {
-        std.debug.print("CollisionInfo {}\n", .{res});
-    } else {
-        std.debug.print("No Collision\n", .{});
-    }
 }
