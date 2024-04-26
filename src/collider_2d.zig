@@ -5,32 +5,37 @@ const Transform = @import("transform.zig").Transform2D;
 const std = @import("std");
 
 pub const Collider2D = struct { shape: CollisionShape, transform: Transform, mass: f32 };
+pub const CollisionContactInfo2D = struct { point1: Vec2, point2: Vec2, depth: f32 };
+pub const CollisionInfo2D = struct { colliders: [2]*const Collider2D, contactInfo: CollisionContactInfo2D };
 
 pub const CollisionDetector2D = struct {
-    colliders: []const Collider2D,
+    colliders: *[]const Collider2D,
     index1: usize,
     index2: usize,
 
-    pub fn new(colliders: []const Collider2D) CollisionDetector2D {
+    pub fn new(colliders: *[]const Collider2D) CollisionDetector2D {
         return CollisionDetector2D{ .colliders = colliders, .index1 = 0, .index2 = 1 };
     }
 
-    pub fn nextCollision(self: *CollisionDetector2D) ?CollisionContactInfo2D {
-        var res: ?CollisionContactInfo2D = null;
+    pub fn nextCollision(self: *CollisionDetector2D) ?CollisionInfo2D {
+        var res: ?CollisionInfo2D = null;
         var index1 = self.index1;
         var index2 = self.index2;
 
         outer: while (index1 < self.colliders.len) {
             while (index2 < self.colliders.len) {
                 defer index2 += 1;
-                const collider1 = self.colliders[index1];
-                const collider2 = self.colliders[index2];
+                const collider1: *const Collider2D = &self.colliders.*[index1];
+                const collider2: *const Collider2D = &self.colliders.*[index2];
 
                 var offset = collider1.transform;
                 offset.translation.subtract(collider2.transform.translation);
                 offset.translation.rotate(collider2.transform.rotation.scaled(-1.0));
-                res = checkCollisions(collider1.shape, collider2.shape, offset);
-                if (res != null) break :outer;
+                const contactInfo = checkCollisions(collider1.shape, collider2.shape, offset);
+                if (contactInfo != null) {
+                    res = CollisionInfo2D{ .colliders = .{ collider1, collider2 }, .contactInfo = contactInfo.? };
+                    break :outer;
+                }
             }
             index1 += 1;
             index2 = index1 + 1;
@@ -41,8 +46,6 @@ pub const CollisionDetector2D = struct {
         return res;
     }
 };
-
-pub const CollisionContactInfo2D = struct { point1: Vec2, point2: Vec2, depth: f32 };
 
 fn checkRectangleRectangleCollisionAxis(rect1: CollisionShapes.Rectangle, rect2: CollisionShapes.Rectangle, transform: Transform) ?Vec2 {
     var up = Vec2.new(1, 0);
