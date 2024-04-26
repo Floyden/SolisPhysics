@@ -20,12 +20,14 @@ pub const RigidBody = struct {
 pub const PhysicsWorld = struct {
     colliderList: std.ArrayList(Colliders.Collider2D),
     rigidBodyList: std.ArrayList(RigidBody),
+    collisionList: std.ArrayList(Colliders.CollisionContactInfo2D),
     gravity: Vec2,
 
     pub fn new() PhysicsWorld {
         return PhysicsWorld{
             .colliderList = std.ArrayList(Colliders.Collider2D).init(std.heap.page_allocator),
             .rigidBodyList = std.ArrayList(RigidBody).init(std.heap.page_allocator),
+            .collisionList = std.ArrayList(Colliders.CollisionContactInfo2D).init(std.heap.page_allocator),
             .gravity = Vec2.new(0.0, 9.81),
         };
     }
@@ -33,6 +35,7 @@ pub const PhysicsWorld = struct {
     pub fn deinit(self: *PhysicsWorld) void {
         self.rigidBodyList.deinit();
         self.colliderList.deinit();
+        self.collisionList.deinit();
     }
 
     pub fn addCollider(self: *PhysicsWorld, collider: Colliders.Collider2D) u64 {
@@ -61,10 +64,11 @@ pub const PhysicsWorld = struct {
         }
     }
 
-    pub fn step(self: *PhysicsWorld, dt: f32) void {
+    pub fn step(self: *PhysicsWorld, dt: f32) !void {
         var detector = Colliders.CollisionDetector2D.new(self.colliderList.items);
+        self.collisionList.clearRetainingCapacity();
         while (detector.nextCollision()) |collision| {
-            _ = collision;
+            try self.collisionList.append(collision);
         }
         _ = dt;
     }

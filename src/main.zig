@@ -25,14 +25,17 @@ pub fn main() !void {
 
     const rect1Shape = CollisionShape{ .rectangle = CollisionShapes.Rectangle.new(50.0, 50.0) };
     const rect2Shape = CollisionShape{ .rectangle = CollisionShapes.Rectangle.new(50.0, 50.0) };
+    const rect3Shape = CollisionShape{ .rectangle = CollisionShapes.Rectangle.new(60.0, 40.0) };
     // const rect2Shape = CollisionShape{ .sphere = CollisionShapes.Sphere{ .radius = 50.0 } };
     const transform = Transform.fromTranslation(Vec2.new(200.0, 100.0));
+    const transform2 = Transform.fromTranslation(Vec2.new(300.0, 200.0));
 
     var colliderArray = std.ArrayList(Collider.Collider2D).init(std.heap.page_allocator);
     defer colliderArray.deinit();
 
     const c1 = world.addCollider(Collider.Collider2D{ .shape = rect1Shape, .transform = Transform.identity(), .mass = 1.0 });
     const c2 = world.addCollider(Collider.Collider2D{ .shape = rect2Shape, .transform = transform, .mass = 1.0 });
+    const c3 = world.addCollider(Collider.Collider2D{ .shape = rect3Shape, .transform = transform2, .mass = 1.0 });
 
     _ = world.addRigidBody(RigidBody{ .colliderId = c1, .velocity = Vec2.zero(), .forces = Vec2.zero(), .mass = 1.0 });
     _ = world.addRigidBody(RigidBody{ .colliderId = c2, .velocity = Vec2.zero(), .forces = Vec2.zero(), .mass = 1.0 });
@@ -52,13 +55,19 @@ pub fn main() !void {
             world.getCollider(c1).transform.translation.x = mouseX;
             world.getCollider(c1).transform.translation.y = mouseY;
         }
-        world.step(16.0);
+        try world.step(16.0);
 
         const r = world.getCollider(c1);
         const s = world.getCollider(c2);
+        const t = world.getCollider(c3);
         // ray.DrawCircle(@intFromFloat(s.*.transform.translation.x), @intFromFloat(s.*.transform.translation.y), s.*.shape.sphere.radius, ray.MAROON);
         drawPhysicsRectangle(r, ray.GREEN);
         drawPhysicsRectangle(s, ray.MAROON);
+        drawPhysicsRectangle(t, ray.MAROON);
+        for (world.collisionList.items) |collisions| {
+            const point = collisions.point1;
+            ray.DrawCircle(@intFromFloat(point.x), @intFromFloat(point.y), 10.0, ray.YELLOW);
+        }
 
         ray.EndDrawing();
     }
