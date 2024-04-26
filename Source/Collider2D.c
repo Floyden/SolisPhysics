@@ -1,37 +1,74 @@
 #include "Collider2D.h"
-#include <stdlib.h>
+#include "Source/CollisionShapes2D.h"
+#include "Source/Math.h"
 
-typedef struct Sol_ColliderSet_T {
-    Sol_Collider2D* colliders;
-    size_t size;
-    size_t allocatedSize;
-} Sol_ColliderSet_T;
-
-void Sol_ColliderSetCreate(Sol_ColliderSet* set)
+CollisionIter Sol_CollisionIterCreate()
 {
-    static const DEFAULT_ALLOCATION_COUNT = 16;
-    *set =(Sol_ColliderSet_T*) malloc(sizeof(Sol_ColliderSet_T));
-    (*set)->colliders = (Sol_Collider2D*) malloc(sizeof(Sol_Collider2D) * DEFAULT_ALLOCATION_COUNT);
-    (*set)->allocatedSize = DEFAULT_ALLOCATION_COUNT;
-    (*set)->size = 0;
+    return (CollisionIter) { 
+        .i = 0, 
+        .j = 1, 
+        (Sol_CollisionContactInfo2D){} 
+    };
 }
 
-void Sol_ColliderSetDestroy(Sol_ColliderSet set)
+int _HandleRectangleCollision(Sol_Collider2D const *colliderA, Sol_Collider2D const *colliderB, Sol_Isometry2D *difference, Sol_CollisionContactInfo2D *contactInfo)
 {
-    free(set->colliders);
-    free(set);
-}
-
-Sol_ColliderIndex Sol_ColliderSetAddCollider(Sol_ColliderSet set, Sol_Collider2D collider)
-{
-    if (set->size >= set->allocatedSize)
-    {
-        set->colliders = (Sol_Collider2D*) realloc(set->colliders, sizeof(Sol_Collider2D) * (set->allocatedSize * 2));
-        set->allocatedSize *= 2;
+    switch (colliderB->collisionType) {
+    case SOL_COLLISION_SHAPE_2D_CAPSULE:
+        // [TODO]
+        return 0;
+    case SOL_COLLISION_SHAPE_2D_CONVEX_POLYGON:
+        // [TODO]
+        return 0;
+    case SOL_COLLISION_SHAPE_2D_RECTANGLE:
+        return Sol_CollisionCheckRectangleRectangle((Sol_ShapeRectangle2D*)&colliderA->collisionShape, (Sol_ShapeRectangle2D*)&colliderA->collisionShape, difference, contactInfo);
+    case SOL_COLLISION_SHAPE_2D_SEGMENT:
+        // [TODO]
+        return 0;
+        //return Sol_CollisionCheckRectangleSegment((Sol_ShapeRectangle2D*)&colliderA->collisionShape, (Sol_ShapeSegment2D*)&colliderA->collisionShape, difference, contactInfo);
+    case SOL_COLLISION_SHAPE_2D_SPHERE:
+        // [TODO]
+        return 0;
+        //return Sol_CollisionCheckRectangleSphere((Sol_ShapeRectangle2D*)&colliderA->collisionShape, (Sol_ShapeSphere2D*)&colliderA->collisionShape, difference, contactInfo);
     }
-
-    set->colliders[set->size++] = collider;
-    return set->size;
+    return 0;
 }
 
+int _HandleCollision(Sol_Collider2D const *colliderA, Sol_Collider2D const *colliderB, Sol_Isometry2D *difference, Sol_CollisionContactInfo2D *contactInfo)
+{
+    switch (colliderA->collisionType) {
+    case SOL_COLLISION_SHAPE_2D_CAPSULE:
+        // [TODO]
+        break;
+    case SOL_COLLISION_SHAPE_2D_CONVEX_POLYGON:
+        // [TODO]
+        break;
+    case SOL_COLLISION_SHAPE_2D_RECTANGLE:
+        return _HandleRectangleCollision(colliderA, colliderB, difference, contactInfo);
+    case SOL_COLLISION_SHAPE_2D_SEGMENT:
+        // [TODO]
+        break;
+    case SOL_COLLISION_SHAPE_2D_SPHERE:
+        // [TODO]
+        break;
+    }
+    return 0;
+}
 
+int DetectNextCollisions(Sol_Collider2D const *colliders, size_t count, CollisionIter *iter)
+{
+    while(iter->i < count - 1) {
+        while(iter->j < count) {
+            Sol_Isometry2D difference = colliders[iter->i].transform;
+            Sol_Isometry2DSub(&difference, &colliders[iter->j].transform); 
+            
+            int res = _HandleCollision(&colliders[iter->i], &colliders[iter->j], &difference, &iter->contactInfo);
+
+            ++iter->j;
+            if(res) return 1;
+        }
+        ++iter->i;
+        iter->j = iter->i + 1;
+    }
+    return 0;
+}

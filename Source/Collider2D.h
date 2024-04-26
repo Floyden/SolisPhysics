@@ -10,11 +10,13 @@ typedef struct Sol_Collider2D
     Sol_Isometry2D transform;
 } Sol_Collider2D;
 
-typedef struct Sol_ColliderSet_T* Sol_ColliderSet;
-typedef size_t Sol_ColliderIndex;
+typedef struct {
+    size_t i, j;
+    Sol_CollisionContactInfo2D contactInfo;
+} CollisionIter;
 
-void Sol_ColliderSetCreate(Sol_ColliderSet* set);
-void Sol_ColliderSetDestroy(Sol_ColliderSet set);
-Sol_ColliderIndex Sol_ColliderSetAddCollider(Sol_ColliderSet set, Sol_Collider2D collider);
+CollisionIter Sol_CollisionIterCreate();
+int Sol_DetectNextCollisions(Sol_Collider2D const *colliders, size_t count, CollisionIter *iter);
+
 
 #endif // SOL_COLLIDER_2D
