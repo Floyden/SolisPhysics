@@ -13,7 +13,9 @@ const ray = @cImport({
 fn drawPhysicsRectangle(collider: *Collider.Collider2D, color: ray.Color) void {
     const rExtent = collider.shape.rectangle;
     const rPos = collider.transform.translation;
-    ray.DrawRectangle(@intFromFloat(rPos.x - rExtent.halfWidth), @intFromFloat(rPos.y - rExtent.halfHeight), @intFromFloat(2.0 * rExtent.halfWidth), @intFromFloat(2.0 * rExtent.halfHeight), color);
+    const rect = ray.Rectangle{ .x = rPos.x, .y = rPos.y, .width = (2.0 * rExtent.halfWidth), .height = (2.0 * rExtent.halfHeight) };
+    const rotation = std.math.atan2(collider.transform.rotation.y, collider.transform.rotation.x) / std.math.pi * 180.0;
+    ray.DrawRectanglePro(rect, ray.Vector2{ .x = rect.width / 2, .y = rect.height / 2 }, rotation, color);
 }
 
 pub fn main() !void {
@@ -48,12 +50,18 @@ pub fn main() !void {
         const mouseY: f32 = @floatFromInt(ray.GetMouseY());
 
         if (ray.IsMouseButtonDown(0)) {
-            world.getCollider(c2).transform.translation.x = mouseX;
-            world.getCollider(c2).transform.translation.y = mouseY;
+            const rotation = ray.GetMouseWheelMove() * 0.1;
+            var iso = &world.getCollider(c1).transform;
+            iso.translation.x = mouseX;
+            iso.translation.y = mouseY;
+            iso.rotation.rotateRad(rotation);
         }
         if (ray.IsMouseButtonDown(1)) {
-            world.getCollider(c1).transform.translation.x = mouseX;
-            world.getCollider(c1).transform.translation.y = mouseY;
+            const rotation = ray.GetMouseWheelMove() * 0.1;
+            var iso = &world.getCollider(c2).transform;
+            iso.translation.x = mouseX;
+            iso.translation.y = mouseY;
+            iso.rotation.rotateRad(rotation);
         }
         try world.step(16.0);
 
