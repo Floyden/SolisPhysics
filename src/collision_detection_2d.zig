@@ -1,6 +1,7 @@
 const CollisionShapes = @import("collision_shapes_2d.zig");
 const Transform = @import("transform.zig").Transform2D;
 const Vec2 = @import("vec2.zig").Vec2;
+const std = @import("std");
 
 const CollisionShape = CollisionShapes.CollisionShape;
 pub const CollisionContactInfo2D = struct { point1: Vec2, point2: Vec2, depth: f32 };
@@ -73,11 +74,26 @@ fn checkLineRectangleCollision(line: CollisionShapes.Line, rectangle: CollisionS
     return null;
 }
 
+fn isLeft(a: Vec2, b: Vec2, c: Vec2) bool {
+    return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x) > 0;
+}
+
 fn checkLineLineCollision(line1: CollisionShapes.Line, line2: CollisionShapes.Line, difference: Transform) ?CollisionContactInfo2D {
-    _ = line1;
-    _ = line2;
-    _ = difference;
-    return null;
+    var start = Vec2.new(-line2.length / 2, 0);
+    var end = Vec2.new(line2.length / 2, 0);
+    start.rotate(difference.rotation);
+    end.rotate(difference.rotation);
+    start.add(difference.translation);
+    end.add(difference.translation);
+
+    const start1 = Vec2.new(-line1.length / 2, 0);
+    const end1 = Vec2.new(line1.length / 2, 0);
+    if (isLeft(start1, end1, start) == isLeft(start1, end1, end) or isLeft(start, end, start1) == isLeft(start, end, end1)) return null;
+
+    // if ((start.x > line1.length / 2 and end.x > line1.length / 2) or (start.x < -line1.length / 2 and end.x < -line1.length / 2)) return null;
+    // if (std.math.sign(start.y) == std.math.sign(end.y)) return null;
+
+    return CollisionContactInfo2D{ .point1 = Vec2.zero(), .point2 = Vec2.zero(), .depth = 0.0 };
 }
 
 inline fn checkCollisionsRectangleShape(rectangle: CollisionShapes.Rectangle, shape: CollisionShape, transform: Transform) ?CollisionContactInfo2D {

@@ -63,3 +63,21 @@ pub const Vec2 = struct {
         self.*.y = tX * @sin(ang) + tY * @cos(ang);
     }
 };
+
+const std = @import("std");
+test "rotate" {
+    // Rotation by 90 degrees
+    var t1 = Vec2.new(1, 0);
+    t1.rotate(Vec2.new(0, 1));
+    try std.testing.expectEqual(t1, Vec2.new(0, 1));
+
+    // Rotation by 180 degrees
+    t1 = Vec2.new(1, 0);
+    t1.rotate(Vec2.new(-1, 0));
+    try std.testing.expectEqual(t1, Vec2.new(-1, 0));
+
+    // Rotation by 45 degrees
+    t1 = Vec2.new(1, 0);
+    t1.rotate(Vec2.new(1.0 / @sqrt(2.0), 1.0 / @sqrt(2.0)));
+    try std.testing.expectEqual(t1, Vec2.new(1.0 / @sqrt(2.0), 1.0 / @sqrt(2.0)));
+}
