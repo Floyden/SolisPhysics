@@ -28,9 +28,8 @@ pub const CollisionDetector2D = struct {
                 const collider1: *const Collider2D = &self.colliders.*[index1];
                 const collider2: *const Collider2D = &self.colliders.*[index2];
 
-                var offset = collider1.transform;
-                offset.translation.subtract(collider2.transform.translation);
-                offset.translation.rotate(collider2.transform.rotation.scaled(-1.0));
+                var offset = collider2.transform;
+                offset.subtract(collider1.transform);
                 const contactInfo = CollisionDetection.checkCollisions(collider1.shape, collider2.shape, offset);
                 if (contactInfo != null) {
                     res = CollisionInfo2D{ .colliders = .{ collider1, collider2 }, .contactInfo = contactInfo.? };

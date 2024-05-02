@@ -34,6 +34,12 @@ pub const Transform2D = struct {
         self.translation.add(other.translation);
         self.rotation.rotate(other.rotation);
     }
+
+    pub fn subtract(self: *Transform2D, other: Transform2D) void {
+        const otherI = other.inverted();
+        self.translation.add(otherI.translation);
+        self.rotation.rotate(otherI.rotation);
+    }
 };
 
 test "add" {
@@ -43,6 +49,16 @@ test "add" {
 
     try std.testing.expectEqual(t1.translation, Vec2.new(1, -1));
     try std.testing.expectEqual(t1.rotation, Vec2.new(0, 1));
+}
+
+test "subtract" {
+    var t1 = Transform2D.new(Vec2.new(1, 0), Vec2.new(0.5, @sqrt(3.0) / 2.0));
+    const t2 = Transform2D.new(Vec2.new(0, -1), Vec2.new(@sqrt(3.0) / 2.0, 0.5));
+    t1.subtract(t2);
+
+    try std.testing.expectEqual(t1.translation, Vec2.new(1, 1));
+    try std.testing.expectApproxEqAbs(t1.rotation.x, @sqrt(3.0) / 2.0, 0.001);
+    try std.testing.expectApproxEqAbs(t1.rotation.y, 0.5, 0.0001);
 }
 
 test "invert" {
