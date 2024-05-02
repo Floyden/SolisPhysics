@@ -66,10 +66,33 @@ pub fn checkRectangleSphereCollision(rect: CollisionShapes.Rectangle, sphere: Co
     return null;
 }
 
+fn checkLineRectangleCollision(line: CollisionShapes.Line, rectangle: CollisionShapes.Rectangle, difference: Transform) ?CollisionContactInfo2D {
+    _ = line;
+    _ = rectangle;
+    _ = difference;
+    return null;
+}
+
+fn checkLineLineCollision(line1: CollisionShapes.Line, line2: CollisionShapes.Line, difference: Transform) ?CollisionContactInfo2D {
+    _ = line1;
+    _ = line2;
+    _ = difference;
+    return null;
+}
+
 inline fn checkCollisionsRectangleShape(rectangle: CollisionShapes.Rectangle, shape: CollisionShape, transform: Transform) ?CollisionContactInfo2D {
     switch (shape) {
         CollisionShape.rectangle => |rectangle2| return checkRectangleRectangleCollision(rectangle, rectangle2, transform),
         CollisionShape.sphere => |sphere| return checkRectangleSphereCollision(rectangle, sphere, transform),
+        CollisionShape.line => |line| return checkLineRectangleCollision(line, rectangle, transform.inverted()),
+        else => return null,
+    }
+    return null;
+}
+
+inline fn checkCollisionsLineShape(line: CollisionShapes.Line, shape: CollisionShape, transform: Transform) ?CollisionContactInfo2D {
+    switch (shape) {
+        CollisionShape.line => |line2| return checkLineLineCollision(line, line2, transform.inverted()),
         else => return null,
     }
     return null;
@@ -78,6 +101,7 @@ inline fn checkCollisionsRectangleShape(rectangle: CollisionShapes.Rectangle, sh
 pub fn checkCollisions(shape1: CollisionShape, shape2: CollisionShape, transform: Transform) ?CollisionContactInfo2D {
     switch (shape1) {
         CollisionShape.rectangle => |rectangle| return checkCollisionsRectangleShape(rectangle, shape2, transform),
+        CollisionShape.line => |line| return checkCollisionsLineShape(line, shape2, transform),
         else => return null,
     }
 }

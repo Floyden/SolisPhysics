@@ -27,9 +27,24 @@ pub const Sphere = struct {
     radius: f32,
 };
 
+pub const Line = struct { length: f32 };
+
 pub const CollisionShape = union(enum) {
     capsule: Capsule,
     convexPolygon: ConvexPolygon,
+    line: Line,
     rectangle: Rectangle,
     sphere: Sphere,
+
+    pub fn newLine(length: f32) @This() {
+        return @This(){ .line = Line{ .length = length } };
+    }
+
+    pub fn newSphere(radius: f32) @This() {
+        return @This(){ .line = Sphere{ .radius = radius } };
+    }
+
+    pub fn newRectangle(halfWidth: f32, halfHeight: f32) @This() {
+        return @This(){ .line = Rectangle.new(halfWidth, halfHeight) };
+    }
 };
