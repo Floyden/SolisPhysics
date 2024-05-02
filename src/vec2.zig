@@ -50,17 +50,17 @@ pub const Vec2 = struct {
     }
 
     pub inline fn rotate(self: *Vec2, other: Vec2) void {
-        const tX = self.*.x;
-        const tY = self.*.y;
-        self.*.x = tX * other.x - tY * other.y;
-        self.*.y = tX * other.y + tY * other.x;
+        const tX = self.x;
+        const tY = self.y;
+        self.x = tX * other.x - tY * other.y;
+        self.y = tX * other.y + tY * other.x;
     }
 
     pub inline fn rotateRad(self: *Vec2, ang: f32) void {
-        const tX = self.*.x;
-        const tY = self.*.y;
-        self.*.x = tX * @cos(ang) - tY * @sin(ang);
-        self.*.y = tX * @sin(ang) + tY * @cos(ang);
+        const tX = self.x;
+        const tY = self.y;
+        self.x = tX * @cos(ang) - tY * @sin(ang);
+        self.y = tX * @sin(ang) + tY * @cos(ang);
     }
 };
 

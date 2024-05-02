@@ -19,8 +19,8 @@ pub const Transform2D = struct {
 
     pub fn inverted(self: *const Transform2D) Transform2D {
         return Transform2D{
-            .translation = self.*.translation.scaled(-1.0),
-            .rotation = Vec2.new(self.*.rotation.x, -self.*.rotation.y),
+            .translation = self.translation.scaled(-1.0),
+            .rotation = Vec2.new(self.rotation.x, -self.rotation.y),
         };
     }
 
