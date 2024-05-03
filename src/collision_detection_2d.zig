@@ -7,52 +7,26 @@ const CollisionShape = CollisionShapes.CollisionShape;
 pub const CollisionContactInfo2D = struct { point1: Vec2, point2: Vec2, depth: f32 };
 
 fn checkRectangleRectangleCollisionAxis(rect1: CollisionShapes.Rectangle, rect2: CollisionShapes.Rectangle, transform: Transform) ?Vec2 {
-    var up = Vec2.new(1, 0);
-    var right = Vec2.new(0, 1);
+    var up = Vec2.up();
+    var right = Vec2.right();
     up.rotate(transform.rotation);
-    up.scale(rect2.halfWidth);
     right.rotate(transform.rotation);
-    right.scale(rect2.halfHeight);
 
-    var corners = [4]Vec2{ up, up, up, up };
-    corners[0].add(right);
-    corners[1].subtract(right);
-    corners[2].add(right);
-    corners[2].scale(-1);
-    corners[3].scale(-1);
-    corners[3].add(right);
+    const t1 = @abs(transform.translation.dot(right));
+    const t2 = @abs(transform.translation.dot(up));
+    const t3 = @abs(transform.translation.dot(Vec2.right()));
+    const t4 = @abs(transform.translation.dot(Vec2.up()));
 
-    const idx: usize = if (@abs(corners[0].x) > @abs(corners[1].x)) 1 else 0;
-    for (&corners) |*corner| corner.add(transform.translation);
+    if (t1 > rect1.halfWidth + @abs(right.dot(Vec2.right()) * rect2.halfWidth) + @abs(up.dot(Vec2.right()) * rect2.halfHeight)) return null;
+    if (t2 > rect1.halfHeight + @abs(right.dot(Vec2.up()) * rect2.halfWidth) + @abs(up.dot(Vec2.up()) * rect2.halfHeight)) return null;
+    if (t3 > rect2.halfWidth + @abs(right.dot(Vec2.right()) * rect1.halfWidth) + @abs(right.dot(Vec2.up()) * rect1.halfHeight)) return null;
+    if (t4 > rect2.halfHeight + @abs(up.dot(Vec2.right()) * rect1.halfWidth) + @abs(up.dot(Vec2.up()) * rect1.halfHeight)) return null;
 
-    if (corners[1 - idx].x > corners[3 - idx].x and (corners[1 - idx].x < -rect1.halfWidth or corners[3 - idx].x > rect1.halfWidth))
-        return null;
-    if (corners[1 - idx].x < corners[3 - idx].x and (corners[1 - idx].x > rect1.halfWidth or corners[3 - idx].x < -rect1.halfWidth))
-        return null;
-    if (corners[0 + idx].y > corners[2 + idx].y and (corners[0 + idx].y < -rect1.halfHeight or corners[2 + idx].y > rect1.halfHeight))
-        return null;
-    if (corners[0 + idx].y < corners[2 + idx].y and (corners[0 + idx].y > rect1.halfHeight or corners[2 + idx].y < -rect1.halfHeight))
-        return null;
-
-    var closest = corners[0];
-    for (corners[1..]) |corner| {
-        if (corner.len2() > closest.len2()) continue;
-        closest = corner;
-    }
-    return closest;
+    return Vec2.zero();
 }
 
 pub fn checkRectangleRectangleCollision(rect1: CollisionShapes.Rectangle, rect2: CollisionShapes.Rectangle, difference: Transform) ?CollisionContactInfo2D {
-    var closest = checkRectangleRectangleCollisionAxis(rect1, rect2, difference);
-    if (closest == null)
-        return null;
-
-    var inverseDifference = difference;
-    inverseDifference.translation.scale(-1.0);
-    inverseDifference.rotation.y *= -1.0;
-    inverseDifference.translation.rotate(inverseDifference.rotation);
-
-    closest = checkRectangleRectangleCollisionAxis(rect2, rect1, inverseDifference);
+    const closest = checkRectangleRectangleCollisionAxis(rect1, rect2, difference);
     if (closest == null)
         return null;
 
@@ -90,9 +64,7 @@ fn checkLineLineCollision(line1: CollisionShapes.Line, line2: CollisionShapes.Li
     const end1 = Vec2.new(line1.length / 2, 0);
     if (isLeft(start1, end1, start) == isLeft(start1, end1, end) or isLeft(start, end, start1) == isLeft(start, end, end1)) return null;
 
-    // if ((start.x > line1.length / 2 and end.x > line1.length / 2) or (start.x < -line1.length / 2 and end.x < -line1.length / 2)) return null;
-    // if (std.math.sign(start.y) == std.math.sign(end.y)) return null;
-
+    // [TODO] Implement return
     return CollisionContactInfo2D{ .point1 = Vec2.zero(), .point2 = Vec2.zero(), .depth = 0.0 };
 }
 

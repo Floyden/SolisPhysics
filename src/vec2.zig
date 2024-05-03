@@ -6,6 +6,14 @@ pub const Vec2 = struct {
         return Vec2{ .x = 0.0, .y = 0.0 };
     }
 
+    pub inline fn right() Vec2 {
+        return Vec2{ .x = 1.0, .y = 0.0 };
+    }
+
+    pub inline fn up() Vec2 {
+        return Vec2{ .x = 0.0, .y = 1.0 };
+    }
+
     pub inline fn new(x: f32, y: f32) Vec2 {
         return Vec2{ .x = x, .y = y };
     }
