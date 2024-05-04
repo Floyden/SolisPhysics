@@ -18,6 +18,20 @@ fn drawPhysicsRectangle(collider: *Collider.Collider2D, color: ray.Color) void {
     ray.DrawRectanglePro(rect, ray.Vector2{ .x = rect.width / 2, .y = rect.height / 2 }, rotation, color);
 }
 
+fn drawPhysicsLine(collider: *Collider.Collider2D, color: ray.Color) void {
+    const start = collider.transform.transform(Vec2.new(-collider.shape.line.length / 2.0, 0.0));
+    const end = collider.transform.transform(Vec2.new(collider.shape.line.length / 2.0, 0.0));
+    ray.DrawLineEx(ray.Vector2{ .x = start.x, .y = start.y }, ray.Vector2{ .x = end.x, .y = end.y }, 1.0, color);
+}
+
+fn drawPhysicsObject(collider: *Collider.Collider2D, color: ray.Color) void {
+    switch (collider.shape) {
+        CollisionShape.rectangle => drawPhysicsRectangle(collider, color),
+        CollisionShape.line => drawPhysicsLine(collider, color),
+        else => {},
+    }
+}
+
 pub fn main() !void {
     ray.InitWindow(600, 480, "Test");
     defer ray.CloseWindow();
@@ -25,22 +39,23 @@ pub fn main() !void {
     var world = PhysicsWorld.new();
     defer world.deinit();
 
-    const rect1Shape = CollisionShape{ .rectangle = CollisionShapes.Rectangle.new(50.0, 50.0) };
-    const rect2Shape = CollisionShape{ .rectangle = CollisionShapes.Rectangle.new(50.0, 50.0) };
-    const rect3Shape = CollisionShape{ .rectangle = CollisionShapes.Rectangle.new(60.0, 40.0) };
+    const rect1Shape = CollisionShape.newRectangle(50.0, 50.0);
+    const rect2Shape = CollisionShape.newRectangle(50.0, 50.0);
+    const rect3Shape = CollisionShape.newRectangle(600, 50);
+    // const line1Shape = CollisionShape.newLine(100);
+    // const line2Shape = CollisionShape.newLine(100);
     // const rect2Shape = CollisionShape{ .sphere = CollisionShapes.Sphere{ .radius = 50.0 } };
-    const transform = Isometry2D.fromTranslation(Vec2.new(200.0, 100.0));
-    const transform2 = Isometry2D.fromTranslation(Vec2.new(300.0, 200.0));
+    const transform = Isometry2D.new(Vec2.new(350.0, 240.0), Vec2.new(0, 1.0));
+    const transform2 = Isometry2D.new(Vec2.new(200.0, 200.0), Vec2.new(1.0 / @sqrt(2.0), -1.0 / @sqrt(2.0)));
+    const transform3 = Isometry2D.fromTranslation(Vec2.new(300.0, 400.0));
 
-    var colliderArray = std.ArrayList(Collider.Collider2D).init(std.heap.page_allocator);
-    defer colliderArray.deinit();
-
-    const c1 = world.addCollider(Collider.Collider2D{ .shape = rect1Shape, .transform = Isometry2D.identity(), .mass = 1.0 });
-    const c2 = world.addCollider(Collider.Collider2D{ .shape = rect2Shape, .transform = transform, .mass = 1.0 });
-    const c3 = world.addCollider(Collider.Collider2D{ .shape = rect3Shape, .transform = transform2, .mass = 1.0 });
+    const c1 = world.addCollider(Collider.Collider2D{ .shape = rect1Shape, .transform = transform, .mass = 1.0 });
+    const c2 = world.addCollider(Collider.Collider2D{ .shape = rect2Shape, .transform = transform2, .mass = 1.0 });
+    const c3 = world.addCollider(Collider.Collider2D{ .shape = rect3Shape, .transform = transform3, .mass = 0.0 });
 
     _ = world.addRigidBody(RigidBody{ .colliderId = c1, .velocity = Vec2.zero(), .forces = Vec2.zero(), .mass = 1.0 });
     _ = world.addRigidBody(RigidBody{ .colliderId = c2, .velocity = Vec2.zero(), .forces = Vec2.zero(), .mass = 1.0 });
+    _ = world.addRigidBody(RigidBody{ .colliderId = c3, .velocity = Vec2.zero(), .forces = Vec2.zero(), .mass = 0.0 });
 
     while (!ray.WindowShouldClose()) {
         ray.ClearBackground(ray.Color{ .r = 0, .g = 0, .b = 0, .a = 0 });
@@ -63,15 +78,15 @@ pub fn main() !void {
             iso.translation.y = mouseY;
             iso.rotation.rotateRad(rotation);
         }
-        try world.step(16.0);
 
         const r = world.getCollider(c1);
         const s = world.getCollider(c2);
         const t = world.getCollider(c3);
-        // ray.DrawCircle(@intFromFloat(s.*.transform.translation.x), @intFromFloat(s.*.transform.translation.y), s.*.shape.sphere.radius, ray.MAROON);
-        drawPhysicsRectangle(r, ray.GREEN);
-        drawPhysicsRectangle(s, ray.MAROON);
-        drawPhysicsRectangle(t, ray.MAROON);
+        drawPhysicsObject(r, ray.GREEN);
+        drawPhysicsObject(s, ray.MAROON);
+        drawPhysicsObject(t, ray.MAROON);
+
+        try world.step(ray.GetFrameTime());
         for (world.collisionList.items) |collisions| {
             const point1 = collisions.contactInfo.point1.add(collisions.colliders[0].transform.translation);
             ray.DrawCircle(@intFromFloat(point1.x), @intFromFloat(point1.y), 10.0, ray.YELLOW);
