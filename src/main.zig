@@ -2,7 +2,7 @@ const std = @import("std");
 const Vec2 = @import("vec2.zig").Vec2;
 const CollisionShapes = @import("collision_shapes_2d.zig");
 const CollisionShape = CollisionShapes.CollisionShape;
-const Transform = @import("transform.zig").Transform2D;
+const Isometry2D = @import("isometry.zig").Isometry2D;
 const Collider = @import("collider_2d.zig");
 const PhysicsWorld = @import("physics_world.zig").PhysicsWorld;
 const RigidBody = @import("physics_world.zig").RigidBody;
@@ -29,13 +29,13 @@ pub fn main() !void {
     const rect2Shape = CollisionShape{ .rectangle = CollisionShapes.Rectangle.new(50.0, 50.0) };
     const rect3Shape = CollisionShape{ .rectangle = CollisionShapes.Rectangle.new(60.0, 40.0) };
     // const rect2Shape = CollisionShape{ .sphere = CollisionShapes.Sphere{ .radius = 50.0 } };
-    const transform = Transform.fromTranslation(Vec2.new(200.0, 100.0));
-    const transform2 = Transform.fromTranslation(Vec2.new(300.0, 200.0));
+    const transform = Isometry2D.fromTranslation(Vec2.new(200.0, 100.0));
+    const transform2 = Isometry2D.fromTranslation(Vec2.new(300.0, 200.0));
 
     var colliderArray = std.ArrayList(Collider.Collider2D).init(std.heap.page_allocator);
     defer colliderArray.deinit();
 
-    const c1 = world.addCollider(Collider.Collider2D{ .shape = rect1Shape, .transform = Transform.identity(), .mass = 1.0 });
+    const c1 = world.addCollider(Collider.Collider2D{ .shape = rect1Shape, .transform = Isometry2D.identity(), .mass = 1.0 });
     const c2 = world.addCollider(Collider.Collider2D{ .shape = rect2Shape, .transform = transform, .mass = 1.0 });
     const c3 = world.addCollider(Collider.Collider2D{ .shape = rect3Shape, .transform = transform2, .mass = 1.0 });
 

@@ -1,12 +1,12 @@
 const CollisionShapes = @import("collision_shapes_2d.zig");
-const Transform = @import("transform.zig").Transform2D;
+const Isometry2D = @import("isometry.zig").Isometry2D;
 const Vec2 = @import("vec2.zig").Vec2;
 const std = @import("std");
 
 const CollisionShape = CollisionShapes.CollisionShape;
 pub const CollisionContactInfo2D = struct { point1: Vec2, point2: Vec2, depth: f32 };
 
-fn checkRectangleRectangleCollisionAxis(rect1: CollisionShapes.Rectangle, rect2: CollisionShapes.Rectangle, transform: Transform) ?Vec2 {
+fn checkRectangleRectangleCollisionAxis(rect1: CollisionShapes.Rectangle, rect2: CollisionShapes.Rectangle, transform: Isometry2D) ?Vec2 {
     var up = Vec2.up();
     var right = Vec2.right();
     up.rotate(transform.rotation);
@@ -25,7 +25,7 @@ fn checkRectangleRectangleCollisionAxis(rect1: CollisionShapes.Rectangle, rect2:
     return Vec2.zero();
 }
 
-pub fn checkRectangleRectangleCollision(rect1: CollisionShapes.Rectangle, rect2: CollisionShapes.Rectangle, difference: Transform) ?CollisionContactInfo2D {
+pub fn checkRectangleRectangleCollision(rect1: CollisionShapes.Rectangle, rect2: CollisionShapes.Rectangle, difference: Isometry2D) ?CollisionContactInfo2D {
     const closest = checkRectangleRectangleCollisionAxis(rect1, rect2, difference);
     if (closest == null)
         return null;
@@ -34,14 +34,14 @@ pub fn checkRectangleRectangleCollision(rect1: CollisionShapes.Rectangle, rect2:
     return CollisionContactInfo2D{ .point1 = Vec2.zero(), .point2 = Vec2.zero(), .depth = 0.0 };
 }
 
-pub fn checkRectangleSphereCollision(rect: CollisionShapes.Rectangle, sphere: CollisionShapes.Sphere, difference: Transform) ?CollisionContactInfo2D {
+pub fn checkRectangleSphereCollision(rect: CollisionShapes.Rectangle, sphere: CollisionShapes.Sphere, difference: Isometry2D) ?CollisionContactInfo2D {
     _ = rect;
     _ = sphere;
     _ = difference;
     return null;
 }
 
-fn checkLineRectangleCollision(line: CollisionShapes.Line, rectangle: CollisionShapes.Rectangle, difference: Transform) ?CollisionContactInfo2D {
+fn checkLineRectangleCollision(line: CollisionShapes.Line, rectangle: CollisionShapes.Rectangle, difference: Isometry2D) ?CollisionContactInfo2D {
     _ = line;
     _ = rectangle;
     _ = difference;
@@ -52,7 +52,7 @@ fn isLeft(a: Vec2, b: Vec2, c: Vec2) bool {
     return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x) > 0;
 }
 
-fn checkLineLineCollision(line1: CollisionShapes.Line, line2: CollisionShapes.Line, difference: Transform) ?CollisionContactInfo2D {
+fn checkLineLineCollision(line1: CollisionShapes.Line, line2: CollisionShapes.Line, difference: Isometry2D) ?CollisionContactInfo2D {
     var start = Vec2.new(-line2.length / 2, 0);
     var end = Vec2.new(line2.length / 2, 0);
     start.rotate(difference.rotation);
@@ -68,25 +68,25 @@ fn checkLineLineCollision(line1: CollisionShapes.Line, line2: CollisionShapes.Li
     return CollisionContactInfo2D{ .point1 = Vec2.zero(), .point2 = Vec2.zero(), .depth = 0.0 };
 }
 
-inline fn checkCollisionsRectangleShape(rectangle: CollisionShapes.Rectangle, shape: CollisionShape, transform: Transform) ?CollisionContactInfo2D {
+inline fn checkCollisionsRectangleShape(rectangle: CollisionShapes.Rectangle, shape: CollisionShape, transform: Isometry2D) ?CollisionContactInfo2D {
     switch (shape) {
         CollisionShape.rectangle => |rectangle2| return checkRectangleRectangleCollision(rectangle, rectangle2, transform),
         CollisionShape.sphere => |sphere| return checkRectangleSphereCollision(rectangle, sphere, transform),
-        CollisionShape.line => |line| return checkLineRectangleCollision(line, rectangle, transform.inverted()),
+        CollisionShape.line => |line| return checkLineRectangleCollision(line, rectangle, transform.inverse()),
         else => return null,
     }
     return null;
 }
 
-inline fn checkCollisionsLineShape(line: CollisionShapes.Line, shape: CollisionShape, transform: Transform) ?CollisionContactInfo2D {
+inline fn checkCollisionsLineShape(line: CollisionShapes.Line, shape: CollisionShape, transform: Isometry2D) ?CollisionContactInfo2D {
     switch (shape) {
-        CollisionShape.line => |line2| return checkLineLineCollision(line, line2, transform.inverted()),
+        CollisionShape.line => |line2| return checkLineLineCollision(line, line2, transform.inverse()),
         else => return null,
     }
     return null;
 }
 
-pub fn checkCollisions(shape1: CollisionShape, shape2: CollisionShape, transform: Transform) ?CollisionContactInfo2D {
+pub fn checkCollisions(shape1: CollisionShape, shape2: CollisionShape, transform: Isometry2D) ?CollisionContactInfo2D {
     switch (shape1) {
         CollisionShape.rectangle => |rectangle| return checkCollisionsRectangleShape(rectangle, shape2, transform),
         CollisionShape.line => |line| return checkCollisionsLineShape(line, shape2, transform),

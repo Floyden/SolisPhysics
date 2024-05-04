@@ -1,5 +1,4 @@
 const Vec2 = @import("vec2.zig").Vec2;
-const Transform = @import("transform.zig").Transform2D;
 
 pub const Capsule = struct {
     height: f32,

@@ -1,11 +1,11 @@
 const Vec2 = @import("vec2.zig").Vec2;
 const CollisionShapes = @import("collision_shapes_2d.zig");
 const CollisionShape = CollisionShapes.CollisionShape;
-const Transform = @import("transform.zig").Transform2D;
+const Isometry2D = @import("isometry.zig").Isometry2D;
 const std = @import("std");
 const CollisionDetection = @import("collision_detection_2d.zig");
 
-pub const Collider2D = struct { shape: CollisionShape, transform: Transform, mass: f32 };
+pub const Collider2D = struct { shape: CollisionShape, transform: Isometry2D, mass: f32 };
 pub const CollisionInfo2D = struct { colliders: [2]*const Collider2D, contactInfo: CollisionDetection.CollisionContactInfo2D };
 
 pub const CollisionDetector2D = struct {
@@ -28,8 +28,7 @@ pub const CollisionDetector2D = struct {
                 const collider1: *const Collider2D = &self.colliders.*[index1];
                 const collider2: *const Collider2D = &self.colliders.*[index2];
 
-                var offset = collider2.transform;
-                offset.subtract(collider1.transform);
+                const offset = collider2.transform.invMul(collider1.transform);
                 const contactInfo = CollisionDetection.checkCollisions(collider1.shape, collider2.shape, offset);
                 if (contactInfo != null) {
                     res = CollisionInfo2D{ .colliders = .{ collider1, collider2 }, .contactInfo = contactInfo.? };
