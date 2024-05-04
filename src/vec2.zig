@@ -30,38 +30,62 @@ pub const Vec2 = struct {
         return self.x * other.x + self.y * other.y;
     }
 
-    pub inline fn add(self: *Vec2, other: Vec2) void {
+    pub inline fn addMut(self: *Vec2, other: Vec2) void {
         self.x += other.x;
         self.y += other.y;
     }
 
-    pub inline fn subtract(self: *Vec2, other: Vec2) void {
+    pub inline fn add(self: *const Vec2, other: Vec2) Vec2 {
+        var res = self.*;
+        res.addMut(other);
+        return res;
+    }
+
+    pub inline fn subMut(self: *Vec2, other: Vec2) void {
         self.x -= other.x;
         self.y -= other.y;
     }
 
-    pub inline fn normalize(self: *Vec2) void {
+    pub inline fn sub(self: *const Vec2, other: Vec2) Vec2 {
+        var res = self.*;
+        res.subMut(other);
+        return res;
+    }
+
+    pub inline fn normalizeMut(self: *Vec2) void {
         const lenInv = 1.0 / self.len();
         self.*.x *= lenInv;
         self.*.y *= lenInv;
     }
 
-    pub inline fn scale(self: *Vec2, scalar: f32) void {
+    pub inline fn normalize(self: *const Vec2) Vec2 {
+        var res = self;
+        res.normalizeMut();
+        return res;
+    }
+
+    pub inline fn scaleMut(self: *Vec2, scalar: f32) void {
         self.*.x *= scalar;
         self.*.y *= scalar;
     }
 
-    pub inline fn scaled(self: Vec2, scalar: f32) Vec2 {
-        var res = self;
-        res.scale(scalar);
+    pub inline fn scale(self: *const Vec2, scalar: f32) Vec2 {
+        var res = self.*;
+        res.scaleMut(scalar);
         return res;
     }
 
-    pub inline fn rotate(self: *Vec2, other: Vec2) void {
+    pub inline fn rotateMut(self: *Vec2, other: Vec2) void {
         const tX = self.x;
         const tY = self.y;
         self.x = tX * other.x - tY * other.y;
         self.y = tX * other.y + tY * other.x;
+    }
+
+    pub inline fn rotate(self: *const Vec2, other: Vec2) Vec2 {
+        var res = self.*;
+        res.rotateMut(other);
+        return res;
     }
 
     pub inline fn rotateRad(self: *Vec2, ang: f32) void {

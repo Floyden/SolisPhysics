@@ -73,12 +73,10 @@ pub fn main() !void {
         drawPhysicsRectangle(s, ray.MAROON);
         drawPhysicsRectangle(t, ray.MAROON);
         for (world.collisionList.items) |collisions| {
-            var point1 = collisions.contactInfo.point1;
-            point1.add(collisions.colliders[0].transform.translation);
+            const point1 = collisions.contactInfo.point1.add(collisions.colliders[0].transform.translation);
             ray.DrawCircle(@intFromFloat(point1.x), @intFromFloat(point1.y), 10.0, ray.YELLOW);
 
-            var point2 = collisions.contactInfo.point2;
-            point2.add(collisions.colliders[1].transform.translation);
+            const point2 = collisions.contactInfo.point2.add(collisions.colliders[1].transform.translation);
             ray.DrawCircle(@intFromFloat(point2.x), @intFromFloat(point2.y), 10.0, ray.YELLOW);
         }
 

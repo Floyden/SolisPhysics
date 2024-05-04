@@ -7,10 +7,8 @@ const CollisionShape = CollisionShapes.CollisionShape;
 pub const CollisionContactInfo2D = struct { point1: Vec2, point2: Vec2, depth: f32 };
 
 fn checkRectangleRectangleCollisionAxis(rect1: CollisionShapes.Rectangle, rect2: CollisionShapes.Rectangle, transform: Isometry2D) ?Vec2 {
-    var up = Vec2.up();
-    var right = Vec2.right();
-    up.rotate(transform.rotation);
-    right.rotate(transform.rotation);
+    const up = Vec2.up().rotate(transform.rotation);
+    const right = Vec2.right().rotate(transform.rotation);
 
     const t1 = @abs(transform.translation.dot(right));
     const t2 = @abs(transform.translation.dot(up));
@@ -53,16 +51,12 @@ fn isLeft(a: Vec2, b: Vec2, c: Vec2) bool {
 }
 
 fn checkLineLineCollision(line1: CollisionShapes.Line, line2: CollisionShapes.Line, difference: Isometry2D) ?CollisionContactInfo2D {
-    var start = Vec2.new(-line2.length / 2, 0);
-    var end = Vec2.new(line2.length / 2, 0);
-    start.rotate(difference.rotation);
-    end.rotate(difference.rotation);
-    start.add(difference.translation);
-    end.add(difference.translation);
+    const start2 = difference.transform(Vec2.new(-line2.length / 2, 0));
+    const end2 = difference.transform(Vec2.new(line2.length / 2, 0));
 
     const start1 = Vec2.new(-line1.length / 2, 0);
     const end1 = Vec2.new(line1.length / 2, 0);
-    if (isLeft(start1, end1, start) == isLeft(start1, end1, end) or isLeft(start, end, start1) == isLeft(start, end, end1)) return null;
+    if (isLeft(start1, end1, start2) == isLeft(start1, end1, end2) or isLeft(start2, end2, start1) == isLeft(start2, end2, end1)) return null;
 
     // [TODO] Implement return
     return CollisionContactInfo2D{ .point1 = Vec2.zero(), .point2 = Vec2.zero(), .depth = 0.0 };

@@ -36,15 +36,15 @@ pub const Isometry2D = struct {
 
     pub fn transform(self: *const Isometry2D, _pt: Vec2) Vec2 {
         var pt = _pt;
-        pt.rotate(self.rotation);
-        pt.add(self.translation);
+        pt.rotateMut(self.rotation);
+        pt.addMut(self.translation);
         return pt;
     }
 
     pub fn inverseMut(self: *Isometry2D) void {
         self.rotation.y *= -1.0;
-        self.translation.scale(-1.0);
-        self.translation.rotate(self.rotation);
+        self.translation.scaleMut(-1.0);
+        self.translation.rotateMut(self.rotation);
     }
 
     pub fn inverse(self: *const Isometry2D) Isometry2D {
@@ -58,9 +58,9 @@ pub const Isometry2D = struct {
         var rotation = self.rotation;
         rotation.y *= -1.0;
         var translation = other.translation;
-        translation.subtract(self.translation);
-        translation.rotate(rotation);
-        rotation.rotate(other.rotation);
+        translation.subMut(self.translation);
+        translation.rotateMut(rotation);
+        rotation.rotateMut(other.rotation);
         return Isometry2D.new(translation, rotation);
     }
 };
