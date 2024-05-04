@@ -44,6 +44,6 @@ pub const CollisionShape = union(enum) {
     }
 
     pub fn newRectangle(halfWidth: f32, halfHeight: f32) @This() {
-        return @This(){ .line = Rectangle.new(halfWidth, halfHeight) };
+        return @This(){ .rectangle = Rectangle.new(halfWidth, halfHeight) };
     }
 };
