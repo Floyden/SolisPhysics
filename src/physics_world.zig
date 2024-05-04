@@ -9,7 +9,7 @@ pub const RigidBody = struct {
     mass: f32,
 
     pub inline fn applyForce(self: *RigidBody, force: Vec2) void {
-        self.forces.add(force);
+        self.forces.addMut(force);
     }
 
     pub inline fn resetForces(self: *RigidBody) void {
@@ -53,23 +53,40 @@ pub const PhysicsWorld = struct {
     }
 
     pub fn resetForces(self: *PhysicsWorld) void {
-        for (self.rigidBodyList.item) |rb| {
+        for (self.rigidBodyList.items) |*rb| {
             rb.resetForces();
         }
     }
 
     pub fn applyGravity(self: *PhysicsWorld) void {
-        for (self.rigidBodyList.item) |rb| {
+        for (self.rigidBodyList.items) |*rb| {
+            if (rb.mass == 0.0) continue;
             rb.applyForce(self.gravity);
         }
     }
 
+    pub fn applyMidpointMethod(self: *PhysicsWorld, dt: f32) void {
+        for (self.rigidBodyList.items) |*rb| {
+            if (rb.mass == 0.0) continue;
+            var transform = &self.colliderList.items[rb.colliderId].transform;
+            const v_next = rb.velocity.add(rb.forces.scale(dt / rb.mass));
+            transform.translation.addMut(v_next.add(rb.velocity).scale(0.5 * dt));
+            rb.velocity = v_next;
+        }
+    }
+
     pub fn step(self: *PhysicsWorld, dt: f32) !void {
+        if (dt != 0.0) {
+            self.resetForces();
+            self.applyGravity();
+
+            self.applyMidpointMethod(dt);
+        }
+
         var detector = Colliders.CollisionDetector2D.new(&self.colliderList.items);
         self.collisionList.clearRetainingCapacity();
         while (detector.nextCollision()) |collision| {
             try self.collisionList.append(collision);
         }
-        _ = dt;
     }
 };
