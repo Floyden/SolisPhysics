@@ -41,9 +41,9 @@ pub const Vec2 = struct {
     }
 
     pub inline fn normalize(self: *Vec2) void {
-        const _len = self.len();
-        self.*.x /= _len;
-        self.*.y /= _len;
+        const lenInv = 1.0 / self.len();
+        self.*.x *= lenInv;
+        self.*.y *= lenInv;
     }
 
     pub inline fn scale(self: *Vec2, scalar: f32) void {
