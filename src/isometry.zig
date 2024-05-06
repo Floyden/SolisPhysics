@@ -23,9 +23,9 @@ pub const Isometry2D = struct {
 
     pub fn mulMut(self: *Isometry2D, other: Isometry2D) void {
         var shift = other.translation;
-        shift.rotate(self.rotation);
-        self.translation.add(shift);
-        self.rotation.rotate(other.rotation);
+        shift.rotateMut(self.rotation);
+        self.translation.addMut(shift);
+        self.rotation.rotateMut(other.rotation);
     }
 
     pub fn mul(self: *const Isometry2D, other: Isometry2D) Isometry2D {

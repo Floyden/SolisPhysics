@@ -59,7 +59,7 @@ pub const Vec2 = struct {
     }
 
     pub inline fn normalize(self: *const Vec2) Vec2 {
-        var res = self;
+        var res = self.*;
         res.normalizeMut();
         return res;
     }
