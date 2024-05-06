@@ -6,30 +6,41 @@ const std = @import("std");
 const CollisionShape = CollisionShapes.CollisionShape;
 pub const CollisionContactInfo2D = struct { point1: Vec2, point2: Vec2, depth: f32 };
 
-fn checkRectangleRectangleCollisionAxis(rect1: CollisionShapes.Rectangle, rect2: CollisionShapes.Rectangle, transform: Isometry2D) ?Vec2 {
+fn checkRectangleRectangleCollisionAxis(rect1: CollisionShapes.Rectangle, rect2: CollisionShapes.Rectangle, transform: Isometry2D) ?f32 {
     const up = Vec2.up().rotate(transform.rotation);
     const right = Vec2.right().rotate(transform.rotation);
 
-    const t1 = @abs(transform.translation.dot(right));
-    const t2 = @abs(transform.translation.dot(up));
-    const t3 = @abs(transform.translation.dot(Vec2.right()));
-    const t4 = @abs(transform.translation.dot(Vec2.up()));
+    var t1 = @abs(transform.translation.dot(right));
+    var t2 = @abs(transform.translation.dot(up));
 
-    if (t1 > rect1.halfWidth + @abs(right.dot(Vec2.right()) * rect2.halfWidth) + @abs(up.dot(Vec2.right()) * rect2.halfHeight)) return null;
-    if (t2 > rect1.halfHeight + @abs(right.dot(Vec2.up()) * rect2.halfWidth) + @abs(up.dot(Vec2.up()) * rect2.halfHeight)) return null;
-    if (t3 > rect2.halfWidth + @abs(right.dot(Vec2.right()) * rect1.halfWidth) + @abs(right.dot(Vec2.up()) * rect1.halfHeight)) return null;
-    if (t4 > rect2.halfHeight + @abs(up.dot(Vec2.right()) * rect1.halfWidth) + @abs(up.dot(Vec2.up()) * rect1.halfHeight)) return null;
+    t1 -= rect1.halfWidth + @abs(right.dot(Vec2.right()) * rect2.halfWidth) + @abs(up.dot(Vec2.right()) * rect2.halfHeight);
+    t2 -= rect1.halfHeight + @abs(right.dot(Vec2.up()) * rect2.halfWidth) + @abs(up.dot(Vec2.up()) * rect2.halfHeight);
+    if (t1 > 0 or t2 > 0) return null;
 
-    return Vec2.zero();
+    return @min(t1, t2);
 }
 
 pub fn checkRectangleRectangleCollision(rect1: CollisionShapes.Rectangle, rect2: CollisionShapes.Rectangle, difference: Isometry2D) ?CollisionContactInfo2D {
-    const closest = checkRectangleRectangleCollisionAxis(rect1, rect2, difference);
-    if (closest == null)
+    const closest1 = checkRectangleRectangleCollisionAxis(rect1, rect2, difference);
+    if (closest1 == null)
         return null;
 
+    const invDiff = difference.inverse();
+    const closest2 = checkRectangleRectangleCollisionAxis(rect2, rect1, invDiff);
+    if (closest2 == null) return null;
+
+    var corner1 = Vec2.zero();
+    var corner2 = Vec2.zero();
+    if (closest1.? > closest2.?) {
+        corner1.x = std.math.copysign(rect1.halfWidth, invDiff.translation.x);
+        corner1.y = std.math.copysign(rect1.halfHeight, invDiff.translation.y);
+    } else {
+        corner2.x = std.math.copysign(rect2.halfWidth, difference.translation.x);
+        corner2.y = std.math.copysign(rect2.halfHeight, difference.translation.y);
+    }
+
     // [TODO] Calculate closest penetrating corner
-    return CollisionContactInfo2D{ .point1 = Vec2.zero(), .point2 = Vec2.zero(), .depth = 0.0 };
+    return CollisionContactInfo2D{ .point1 = corner1, .point2 = corner2, .depth = 0.0 };
 }
 
 pub fn checkRectangleSphereCollision(rect: CollisionShapes.Rectangle, sphere: CollisionShapes.Sphere, difference: Isometry2D) ?CollisionContactInfo2D {
