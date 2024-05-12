@@ -39,19 +39,19 @@ pub fn main() !void {
     var world = PhysicsWorld.new();
     defer world.deinit();
 
-    const rect1Shape = CollisionShape.newRectangle(50.0, 50.0);
-    const rect2Shape = CollisionShape.newRectangle(50.0, 50.0);
-    const rect3Shape = CollisionShape.newRectangle(600, 50);
-    // const line1Shape = CollisionShape.newLine(100);
-    // const line2Shape = CollisionShape.newLine(100);
-    // const rect2Shape = CollisionShape{ .sphere = CollisionShapes.Sphere{ .radius = 50.0 } };
+    const shape1 = CollisionShape.newRectangle(50.0, 50.0);
+    const shape2 = CollisionShape.newRectangle(50.0, 50.0);
+    const shape3 = CollisionShape.newRectangle(600, 50);
+    // const shape1 = CollisionShape.newLine(100);
+    // const shape2 = CollisionShape.newLine(100);
+    // const shape3 = CollisionShape{ .sphere = CollisionShapes.Sphere{ .radius = 50.0 } };
     const transform = Isometry2D.new(Vec2.new(350.0, 240.0), Vec2.new(0, 1.0));
     const transform2 = Isometry2D.new(Vec2.new(200.0, 200.0), Vec2.new(1.0 / @sqrt(2.0), -1.0 / @sqrt(2.0)));
     const transform3 = Isometry2D.fromTranslation(Vec2.new(300.0, 400.0));
 
-    const c1 = world.addCollider(Collider2D.new(rect1Shape, transform));
-    const c2 = world.addCollider(Collider2D.new(rect2Shape, transform2));
-    const c3 = world.addCollider(Collider2D.new(rect3Shape, transform3));
+    const c1 = world.addCollider(Collider2D.new(shape1, transform));
+    const c2 = world.addCollider(Collider2D.new(shape2, transform2));
+    const c3 = world.addCollider(Collider2D.new(shape3, transform3));
 
     _ = world.addRigidBody(RigidBody.new(c1, 1.0));
     _ = world.addRigidBody(RigidBody.new(c2, 1.0));
