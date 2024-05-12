@@ -17,10 +17,12 @@ typedef struct Sol_Isometry2D
 
 extern const Sol_Isometry2D Sol_ISOMETRY2D_IDENTITY;
 
-/* Calculate the sum of two isometric transformations. Result is written in a */
-void Sol_Isometry2DAdd(Sol_Isometry2D* a, Sol_Isometry2D const* b);
-/* Calculate the difference of two isometric transformations. Result is written in a */
-void Sol_Isometry2DSub(Sol_Isometry2D* a, Sol_Isometry2D const* b);
+/* Transform the vector by the given isometry */
+void Sol_Isometry2DTransform(Sol_Isometry2D const *a, Sol_Vec2 *b);
+/* Invert the given Isometry */
+void Sol_Isometry2DInverse(Sol_Isometry2D *a);
+/* Multiply the given Isometry by another */
+void Sol_Isometry2DMul(Sol_Isometry2D *a, Sol_Isometry2D const *b);
 
 /* Normalize the given Vec2 */
 SOL_INLINE void Sol_Vec2Normalize(Sol_Vec2* v) 

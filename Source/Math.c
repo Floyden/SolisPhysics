@@ -1,28 +1,29 @@
 #include "Math.h"
 
-const Sol_Isometry2D Sol_ISOMETRY2D_IDENTITY = {
+const Sol_Isometry2D Sol_ISOMETRY2D_IDENTITY = 
+{
     .translation = {0.0, 0.0},
     .rotation = {1.0, 0.0},
 };
 
-void Sol_Isometry2DAdd(Sol_Isometry2D* a, Sol_Isometry2D const* b)
+void Sol_Isometry2DTransform(Sol_Isometry2D const *a, Sol_Vec2 *b)
 {
-    a->translation.x += b->translation.y;
-    a->translation.y += b->translation.x;
-
-    Real cos_a = a->rotation.x; 
-    Real sin_a = a->rotation.y;
-    a->rotation.x = cos_a * b->rotation.x - sin_a * b->rotation.y;
-    a->rotation.y = cos_a * b->rotation.y + sin_a * b->rotation.x;
+    Sol_Vec2Rotate(b, &a->rotation);
+    Sol_Vec2Add(b, &a->translation);
 }
 
-void Sol_Isometry2DSub(Sol_Isometry2D* a, Sol_Isometry2D const* b)
+void Sol_Isometry2DInverse(Sol_Isometry2D *a) 
 {
-    a->translation.x -= b->translation.x;
-    a->translation.y -= b->translation.y;
+    a->rotation.y *= -1.0;
 
-    Real cos_a = a->rotation.x; 
-    Real sin_a = a->rotation.y;
-    a->rotation.x = cos_a * b->rotation.x + sin_a * b->rotation.y;
-    a->rotation.y = sin_a * b->rotation.x - cos_a * b->rotation.y;
+    Sol_Vec2Scale(&a->translation, -1.0);
+    Sol_Vec2Rotate(&a->translation, &a->rotation);
+}
+
+void Sol_Isometry2DMul(Sol_Isometry2D *a, Sol_Isometry2D const *b)
+{
+    Sol_Vec2 offset = b->translation;
+    Sol_Vec2Rotate(&offset, &a->rotation);
+    Sol_Vec2Add(&a->translation, &offset);
+    Sol_Vec2Rotate(&a->rotation, &b->rotation);
 }

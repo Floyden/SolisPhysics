@@ -59,8 +59,9 @@ int DetectNextCollisions(Sol_Collider2D const *colliders, size_t count, Collisio
 {
     while(iter->i < count - 1) {
         while(iter->j < count) {
-            Sol_Isometry2D difference = colliders[iter->i].transform;
-            Sol_Isometry2DSub(&difference, &colliders[iter->j].transform); 
+            Sol_Isometry2D difference = colliders[iter->j].transform;
+            Sol_Isometry2DInverse(&difference);
+            Sol_Isometry2DMul(&difference, &colliders[iter->i].transform); 
             
             int res = _HandleCollision(&colliders[iter->i], &colliders[iter->j], &difference, &iter->contactInfo);
 
