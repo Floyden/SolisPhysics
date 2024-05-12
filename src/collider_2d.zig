@@ -5,7 +5,14 @@ const Isometry2D = @import("isometry.zig").Isometry2D;
 const std = @import("std");
 const CollisionDetection = @import("collision_detection_2d.zig");
 
-pub const Collider2D = struct { shape: CollisionShape, transform: Isometry2D, mass: f32 };
+pub const Collider2D = struct {
+    pub fn new(shape: CollisionShape, transform: Isometry2D) Collider2D {
+        return Collider2D{ .shape = shape, .transform = transform };
+    }
+
+    shape: CollisionShape,
+    transform: Isometry2D,
+};
 pub const CollisionInfo2D = struct { colliders: [2]*const Collider2D, contactInfo: CollisionDetection.CollisionContactInfo2D };
 
 pub const CollisionDetector2D = struct {

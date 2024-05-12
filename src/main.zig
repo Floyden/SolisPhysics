@@ -3,14 +3,14 @@ const Vec2 = @import("vec2.zig").Vec2;
 const CollisionShapes = @import("collision_shapes_2d.zig");
 const CollisionShape = CollisionShapes.CollisionShape;
 const Isometry2D = @import("isometry.zig").Isometry2D;
-const Collider = @import("collider_2d.zig");
+const Collider2D = @import("collider_2d.zig").Collider2D;
 const PhysicsWorld = @import("physics_world.zig").PhysicsWorld;
 const RigidBody = @import("physics_world.zig").RigidBody;
 const ray = @cImport({
     @cInclude("raylib.h");
 });
 
-fn drawPhysicsRectangle(collider: *Collider.Collider2D, color: ray.Color) void {
+fn drawPhysicsRectangle(collider: *Collider2D, color: ray.Color) void {
     const rExtent = collider.shape.rectangle;
     const rPos = collider.transform.translation;
     const rect = ray.Rectangle{ .x = rPos.x, .y = rPos.y, .width = (2.0 * rExtent.halfWidth), .height = (2.0 * rExtent.halfHeight) };
@@ -18,13 +18,13 @@ fn drawPhysicsRectangle(collider: *Collider.Collider2D, color: ray.Color) void {
     ray.DrawRectanglePro(rect, ray.Vector2{ .x = rect.width / 2, .y = rect.height / 2 }, rotation, color);
 }
 
-fn drawPhysicsLine(collider: *Collider.Collider2D, color: ray.Color) void {
+fn drawPhysicsLine(collider: *Collider2D, color: ray.Color) void {
     const start = collider.transform.transform(Vec2.new(-collider.shape.line.length / 2.0, 0.0));
     const end = collider.transform.transform(Vec2.new(collider.shape.line.length / 2.0, 0.0));
     ray.DrawLineEx(ray.Vector2{ .x = start.x, .y = start.y }, ray.Vector2{ .x = end.x, .y = end.y }, 1.0, color);
 }
 
-fn drawPhysicsObject(collider: *Collider.Collider2D, color: ray.Color) void {
+fn drawPhysicsObject(collider: *Collider2D, color: ray.Color) void {
     switch (collider.shape) {
         CollisionShape.rectangle => drawPhysicsRectangle(collider, color),
         CollisionShape.line => drawPhysicsLine(collider, color),
@@ -49,14 +49,15 @@ pub fn main() !void {
     const transform2 = Isometry2D.new(Vec2.new(200.0, 200.0), Vec2.new(1.0 / @sqrt(2.0), -1.0 / @sqrt(2.0)));
     const transform3 = Isometry2D.fromTranslation(Vec2.new(300.0, 400.0));
 
-    const c1 = world.addCollider(Collider.Collider2D{ .shape = rect1Shape, .transform = transform, .mass = 1.0 });
-    const c2 = world.addCollider(Collider.Collider2D{ .shape = rect2Shape, .transform = transform2, .mass = 1.0 });
-    const c3 = world.addCollider(Collider.Collider2D{ .shape = rect3Shape, .transform = transform3, .mass = 0.0 });
+    const c1 = world.addCollider(Collider2D.new(rect1Shape, transform));
+    const c2 = world.addCollider(Collider2D.new(rect2Shape, transform2));
+    const c3 = world.addCollider(Collider2D.new(rect3Shape, transform3));
 
-    _ = world.addRigidBody(RigidBody{ .colliderId = c1, .velocity = Vec2.zero(), .forces = Vec2.zero(), .mass = 1.0 });
-    _ = world.addRigidBody(RigidBody{ .colliderId = c2, .velocity = Vec2.zero(), .forces = Vec2.zero(), .mass = 1.0 });
-    _ = world.addRigidBody(RigidBody{ .colliderId = c3, .velocity = Vec2.zero(), .forces = Vec2.zero(), .mass = 0.0 });
+    _ = world.addRigidBody(RigidBody.new(c1, 1.0));
+    _ = world.addRigidBody(RigidBody.new(c2, 1.0));
+    _ = world.addRigidBody(RigidBody.new(c3, 0.0));
 
+    ray.SetTargetFPS(30);
     while (!ray.WindowShouldClose()) {
         ray.ClearBackground(ray.Color{ .r = 0, .g = 0, .b = 0, .a = 0 });
         ray.BeginDrawing();
@@ -64,15 +65,16 @@ pub fn main() !void {
         const mouseX: f32 = @floatFromInt(ray.GetMouseX());
         const mouseY: f32 = @floatFromInt(ray.GetMouseY());
 
+        const keyRotation: f32 = if (ray.IsKeyDown(ray.KEY_UP)) 0.1 else if (ray.IsKeyDown(ray.KEY_DOWN)) -0.1 else 0.0;
         if (ray.IsMouseButtonDown(0)) {
-            const rotation = ray.GetMouseWheelMove() * 0.1;
+            const rotation = ray.GetMouseWheelMove() * 0.1 + keyRotation;
             var iso = &world.getCollider(c1).transform;
             iso.translation.x = mouseX;
             iso.translation.y = mouseY;
             iso.rotation.rotateRad(rotation);
         }
         if (ray.IsMouseButtonDown(1)) {
-            const rotation = ray.GetMouseWheelMove() * 0.1;
+            const rotation = ray.GetMouseWheelMove() * 0.1 + keyRotation;
             var iso = &world.getCollider(c2).transform;
             iso.translation.x = mouseX;
             iso.translation.y = mouseY;
@@ -86,7 +88,7 @@ pub fn main() !void {
         drawPhysicsObject(s, ray.MAROON);
         drawPhysicsObject(t, ray.MAROON);
 
-        try world.step(ray.GetFrameTime());
+        try world.step(0.0);
         for (world.collisionList.items) |collisions| {
             const point1 = collisions.contactInfo.point1.add(collisions.colliders[0].transform.translation);
             ray.DrawCircle(@intFromFloat(point1.x), @intFromFloat(point1.y), 10.0, ray.YELLOW);

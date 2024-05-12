@@ -8,6 +8,10 @@ pub const RigidBody = struct {
     forces: Vec2,
     mass: f32,
 
+    pub fn new(collider: u64, mass: f32) RigidBody {
+        return RigidBody{ .colliderId = collider, .velocity = Vec2.zero(), .forces = Vec2.zero(), .mass = mass };
+    }
+
     pub inline fn applyForce(self: *RigidBody, force: Vec2) void {
         self.forces.addMut(force);
     }
