@@ -23,11 +23,17 @@ fn drawPhysicsLine(collider: *Collider2D, color: ray.Color) void {
     const end = collider.transform.transform(Vec2.new(collider.shape.line.length / 2.0, 0.0));
     ray.DrawLineEx(ray.Vector2{ .x = start.x, .y = start.y }, ray.Vector2{ .x = end.x, .y = end.y }, 1.0, color);
 }
+fn drawPhysicsSphere(collider: *Collider2D, color: ray.Color) void {
+    const x: c_int = @intFromFloat(collider.transform.translation.x);
+    const y: c_int = @intFromFloat(collider.transform.translation.y);
+    ray.DrawCircle(x, y, collider.shape.sphere.radius, color);
+}
 
 fn drawPhysicsObject(collider: *Collider2D, color: ray.Color) void {
     switch (collider.shape) {
         CollisionShape.rectangle => drawPhysicsRectangle(collider, color),
         CollisionShape.line => drawPhysicsLine(collider, color),
+        CollisionShape.sphere => drawPhysicsSphere(collider, color),
         else => {},
     }
 }

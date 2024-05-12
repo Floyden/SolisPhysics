@@ -73,6 +73,24 @@ fn checkLineLineCollision(line1: CollisionShapes.Line, line2: CollisionShapes.Li
     return CollisionContactInfo2D{ .point1 = Vec2.zero(), .point2 = Vec2.zero(), .depth = 0.0 };
 }
 
+fn checkSphereSphereCollision(sphere1: CollisionShapes.Sphere, sphere2: CollisionShapes.Sphere, difference: Isometry2D) ?CollisionContactInfo2D {
+    const radiusSum = sphere1.radius + sphere2.radius;
+    const diff = radiusSum * radiusSum - difference.translation.len2();
+    if (diff < 0) return null;
+    // Special case if two spheres share the same origin
+    if (difference.translation.len2() == 0)
+        return CollisionContactInfo2D{ .point1 = Vec2.zero(), .point2 = Vec2.zero(), .depth = radiusSum };
+
+    var norm = difference;
+    norm.translation.normalizeMut();
+    const point1 = norm.translation.scale(sphere1.radius);
+    const invDiff = norm.inverse();
+    const point2 = invDiff.translation.scale(sphere2.radius);
+    const depth = @sqrt(diff);
+
+    return CollisionContactInfo2D{ .point1 = point1, .point2 = point2, .depth = depth };
+}
+
 inline fn checkCollisionsRectangleShape(rectangle: CollisionShapes.Rectangle, shape: CollisionShape, transform: Isometry2D) ?CollisionContactInfo2D {
     switch (shape) {
         CollisionShape.rectangle => |rectangle2| return checkRectangleRectangleCollision(rectangle, rectangle2, transform),
@@ -91,9 +109,18 @@ inline fn checkCollisionsLineShape(line: CollisionShapes.Line, shape: CollisionS
     return null;
 }
 
+inline fn checkCollisionsSphereShape(sphere: CollisionShapes.Sphere, shape: CollisionShape, transform: Isometry2D) ?CollisionContactInfo2D {
+    switch (shape) {
+        CollisionShape.sphere => |sphere2| return checkSphereSphereCollision(sphere, sphere2, transform.inverse()),
+        else => return null,
+    }
+    return null;
+}
+
 pub fn checkCollisions(shape1: CollisionShape, shape2: CollisionShape, transform: Isometry2D) ?CollisionContactInfo2D {
     switch (shape1) {
         CollisionShape.rectangle => |rectangle| return checkCollisionsRectangleShape(rectangle, shape2, transform),
+        CollisionShape.sphere => |sphere| return checkCollisionsSphereShape(sphere, shape2, transform),
         CollisionShape.line => |line| return checkCollisionsLineShape(line, shape2, transform),
         else => return null,
     }

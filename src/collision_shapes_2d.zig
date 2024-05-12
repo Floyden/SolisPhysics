@@ -40,7 +40,7 @@ pub const CollisionShape = union(enum) {
     }
 
     pub fn newSphere(radius: f32) @This() {
-        return @This(){ .line = Sphere{ .radius = radius } };
+        return @This(){ .sphere = Sphere{ .radius = radius } };
     }
 
     pub fn newRectangle(halfWidth: f32, halfHeight: f32) @This() {
