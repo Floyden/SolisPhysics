@@ -46,17 +46,33 @@ pub fn checkRectangleRectangleCollision(rect1: CollisionShapes.Rectangle, rect2:
     const closest2 = checkRectangleRectangleCollisionAxis(rect2, rect1, invDiff);
     if (closest2 == null) return null;
 
-    var corner1 = Vec2.zero();
-    var corner2 = Vec2.zero();
-    if (closest1.? > closest2.?) {
-        corner1.x = std.math.copysign(rect1.halfWidth, invDiff.translation.x);
-        corner1.y = std.math.copysign(rect1.halfHeight, invDiff.translation.y);
+    var corner1 = Vec2.new(std.math.copysign(rect1.halfWidth, invDiff.translation.x), std.math.copysign(rect1.halfHeight, invDiff.translation.y));
+    var corner2 = Vec2.new(std.math.copysign(rect2.halfWidth, difference.translation.x), std.math.copysign(rect2.halfHeight, difference.translation.y));
+
+    if (closest1.? >= closest2.?) {
+        var c2Ortho = Vec2.new(corner2.x, -corner2.y);
+        const corner2T = invDiff.transform(corner2);
+
+        const e1 = invDiff.transform(c2Ortho);
+        const e2 = invDiff.transform(c2Ortho.scale(-1.0));
+        c2Ortho = if (e1.len2() > e2.len2()) e2 else e1;
+
+        const point = getLineLineIntersection(corner2T, c2Ortho, corner1, Vec2.zero());
+        if (point != null)
+            corner2 = difference.transform(point.?);
     } else {
-        corner2.x = std.math.copysign(rect2.halfWidth, difference.translation.x);
-        corner2.y = std.math.copysign(rect2.halfHeight, difference.translation.y);
+        var c1Ortho = Vec2.new(corner1.x, -corner1.y);
+        const corner1T = difference.transform(corner1);
+
+        const e1 = difference.transform(c1Ortho);
+        const e2 = difference.transform(c1Ortho.scale(-1.0));
+        c1Ortho = if (e1.len2() > e2.len2()) e2 else e1;
+
+        const point = getLineLineIntersection(corner1T, c1Ortho, corner2, Vec2.zero());
+        if (point != null)
+            corner1 = invDiff.transform(point.?);
     }
 
-    // [TODO] Calculate closest penetrating corner
     return CollisionContactInfo2D{ .point1 = corner1, .point2 = corner2, .depth = 0.0 };
 }
 
