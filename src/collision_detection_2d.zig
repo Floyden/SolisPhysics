@@ -20,7 +20,7 @@ fn checkRectangleRectangleCollisionAxis(rect1: CollisionShapes.Rectangle, rect2:
     return @min(t1, t2);
 }
 
-fn getLineLineIntersection(a: Vec2, b: Vec2, c: Vec2, d: Vec2) ?[2]Vec2 {
+fn getLineLineIntersection(a: Vec2, b: Vec2, c: Vec2, d: Vec2) ?Vec2 {
     const ab = a.sub(b);
     const ac = a.sub(c);
     const cd = c.sub(d);
@@ -34,7 +34,7 @@ fn getLineLineIntersection(a: Vec2, b: Vec2, c: Vec2, d: Vec2) ?[2]Vec2 {
     const u = -(ab.x * ac.y - ab.y * ac.x) / denom;
     if (!(0 <= u and u <= 1)) return null;
 
-    return [2]Vec2{ a.add(b.sub(a).scale(t)), c.add(d.sub(c).scale(u)) };
+    return a.add(b.sub(a).scale(t));
 }
 
 pub fn checkRectangleRectangleCollision(rect1: CollisionShapes.Rectangle, rect2: CollisionShapes.Rectangle, difference: Isometry2D) ?CollisionContactInfo2D {
@@ -89,7 +89,7 @@ fn checkLineLineCollision(line1: CollisionShapes.Line, line2: CollisionShapes.Li
     if (intersection == null) return null;
     const invDiff = difference.inverse();
 
-    return CollisionContactInfo2D{ .point1 = invDiff.transform(intersection.?[0]), .point2 = intersection.?[1], .depth = 0.0 };
+    return CollisionContactInfo2D{ .point1 = invDiff.transform(intersection.?), .point2 = intersection.?, .depth = 0.0 };
 }
 
 fn checkSphereSphereCollision(sphere1: CollisionShapes.Sphere, sphere2: CollisionShapes.Sphere, difference: Isometry2D) ?CollisionContactInfo2D {
