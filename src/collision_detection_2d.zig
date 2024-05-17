@@ -20,6 +20,23 @@ fn checkRectangleRectangleCollisionAxis(rect1: CollisionShapes.Rectangle, rect2:
     return @min(t1, t2);
 }
 
+fn getLineLineIntersection(a: Vec2, b: Vec2, c: Vec2, d: Vec2) ?[2]Vec2 {
+    const ab = a.sub(b);
+    const ac = a.sub(c);
+    const cd = c.sub(d);
+
+    const denom = ab.x * cd.y - ab.y * cd.x;
+    if (denom == 0) return null;
+    // [TODO] Check if 0 <= t <= 1 without dividing first, same for u
+    const t = (ac.x * cd.y - ac.y * cd.x) / denom;
+    if (!(0 <= t and t <= 1)) return null;
+
+    const u = -(ab.x * ac.y - ab.y * ac.x) / denom;
+    if (!(0 <= u and u <= 1)) return null;
+
+    return [2]Vec2{ a.add(b.sub(a).scale(t)), c.add(d.sub(c).scale(u)) };
+}
+
 pub fn checkRectangleRectangleCollision(rect1: CollisionShapes.Rectangle, rect2: CollisionShapes.Rectangle, difference: Isometry2D) ?CollisionContactInfo2D {
     const closest1 = checkRectangleRectangleCollisionAxis(rect1, rect2, difference);
     if (closest1 == null)
@@ -62,15 +79,17 @@ fn isLeft(a: Vec2, b: Vec2, c: Vec2) bool {
 }
 
 fn checkLineLineCollision(line1: CollisionShapes.Line, line2: CollisionShapes.Line, difference: Isometry2D) ?CollisionContactInfo2D {
-    const start2 = difference.transform(Vec2.new(-line2.length / 2, 0));
-    const end2 = difference.transform(Vec2.new(line2.length / 2, 0));
+    const start2 = Vec2.new(-line2.length / 2, 0);
+    const end2 = Vec2.new(line2.length / 2, 0);
 
-    const start1 = Vec2.new(-line1.length / 2, 0);
-    const end1 = Vec2.new(line1.length / 2, 0);
-    if (isLeft(start1, end1, start2) == isLeft(start1, end1, end2) or isLeft(start2, end2, start1) == isLeft(start2, end2, end1)) return null;
+    const start1 = difference.transform(Vec2.new(-line1.length / 2, 0));
+    const end1 = difference.transform(Vec2.new(line1.length / 2, 0));
 
-    // [TODO] Implement return
-    return CollisionContactInfo2D{ .point1 = Vec2.zero(), .point2 = Vec2.zero(), .depth = 0.0 };
+    const intersection = getLineLineIntersection(start1, end1, start2, end2);
+    if (intersection == null) return null;
+    const invDiff = difference.inverse();
+
+    return CollisionContactInfo2D{ .point1 = invDiff.transform(intersection.?[0]), .point2 = intersection.?[1], .depth = 0.0 };
 }
 
 fn checkSphereSphereCollision(sphere1: CollisionShapes.Sphere, sphere2: CollisionShapes.Sphere, difference: Isometry2D) ?CollisionContactInfo2D {
@@ -103,7 +122,7 @@ inline fn checkCollisionsRectangleShape(rectangle: CollisionShapes.Rectangle, sh
 
 inline fn checkCollisionsLineShape(line: CollisionShapes.Line, shape: CollisionShape, transform: Isometry2D) ?CollisionContactInfo2D {
     switch (shape) {
-        CollisionShape.line => |line2| return checkLineLineCollision(line, line2, transform.inverse()),
+        CollisionShape.line => |line2| return checkLineLineCollision(line, line2, transform),
         else => return null,
     }
     return null;
