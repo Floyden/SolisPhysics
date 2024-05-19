@@ -141,7 +141,7 @@ fn checkSphereSphereCollision(sphere1: CollisionShapes.Sphere, sphere2: Collisio
     if (diff < 0) return null;
     // Special case if two spheres share the same origin
     if (difference.translation.len2() == 0)
-        return CollisionContactInfo2D{ .points = .{ Vec2.zero(), Vec2.zero() }, .normals = .{ Vec2.zero(), Vec2.zero() }, .depth = radiusSum };
+        return CollisionContactInfo2D{ .points = .{ Vec2.zero(), Vec2.zero() }, .normals = .{ Vec2.up(), Vec2.up() }, .depth = radiusSum };
 
     var norm = difference;
     norm.translation.normalizeMut();
