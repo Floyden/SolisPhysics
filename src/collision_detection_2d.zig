@@ -8,6 +8,10 @@ pub const CollisionContactInfo2D = struct {
     points: [2]Vec2,
     normals: [2]Vec2,
     depth: f32,
+
+    fn swapped(self: CollisionContactInfo2D) CollisionContactInfo2D {
+        return CollisionContactInfo2D{ .points = .{ self.points[1], self.points[0] }, .normals = .{ self.normals[1], self.normals[0] }, .depth = self.depth };
+    }
 };
 
 fn checkRectangleRectangleCollisionAxis(rect1: CollisionShapes.Rectangle, rect2: CollisionShapes.Rectangle, transform: Isometry2D) ?f32 {
@@ -82,10 +86,26 @@ pub fn checkRectangleRectangleCollision(rect1: CollisionShapes.Rectangle, rect2:
 }
 
 pub fn checkRectangleSphereCollision(rect: CollisionShapes.Rectangle, sphere: CollisionShapes.Sphere, difference: Isometry2D) ?CollisionContactInfo2D {
-    _ = rect;
-    _ = sphere;
-    _ = difference;
-    return null;
+    // [TODO] Deep penetration seems to be buggy
+    var corner = Vec2.new(std.math.copysign(rect.halfWidth, difference.translation.x), std.math.copysign(rect.halfHeight, difference.translation.y));
+    const absDiff = Vec2.new(@abs(difference.translation.x), @abs(difference.translation.y));
+
+    if (absDiff.x - sphere.radius <= rect.halfWidth and absDiff.y < rect.halfHeight) {
+        corner.y = difference.translation.y;
+    } else if (absDiff.y - sphere.radius <= rect.halfHeight and absDiff.x < rect.halfWidth) {
+        corner.x = difference.translation.x;
+    } else if (difference.translation.sub(corner).len2() >= sphere.radius * sphere.radius) return null;
+
+    var diff = difference.translation.sub(corner);
+    if (diff.x == 0 and diff.y == 0)
+        diff = difference.translation;
+
+    var invRota = difference.rotation;
+    invRota.y *= -1.0;
+    const normal = diff.normalize();
+    const point = normal.scale(-sphere.radius).rotate(invRota);
+
+    return CollisionContactInfo2D{ .points = .{ corner, point }, .normals = .{ corner.normalize(), normal }, .depth = 0.0 };
 }
 
 fn checkLineRectangleCollision(line: CollisionShapes.Line, rectangle: CollisionShapes.Rectangle, difference: Isometry2D) ?CollisionContactInfo2D {
@@ -136,7 +156,7 @@ fn checkSphereSphereCollision(sphere1: CollisionShapes.Sphere, sphere2: Collisio
 inline fn checkCollisionsRectangleShape(rectangle: CollisionShapes.Rectangle, shape: CollisionShape, transform: Isometry2D) ?CollisionContactInfo2D {
     switch (shape) {
         CollisionShape.rectangle => |rectangle2| return checkRectangleRectangleCollision(rectangle, rectangle2, transform),
-        CollisionShape.sphere => |sphere| return checkRectangleSphereCollision(rectangle, sphere, transform),
+        CollisionShape.sphere => |sphere| return checkRectangleSphereCollision(rectangle, sphere, transform.inverse()),
         CollisionShape.line => |line| return checkLineRectangleCollision(line, rectangle, transform.inverse()),
         else => return null,
     }
@@ -153,7 +173,8 @@ inline fn checkCollisionsLineShape(line: CollisionShapes.Line, shape: CollisionS
 
 inline fn checkCollisionsSphereShape(sphere: CollisionShapes.Sphere, shape: CollisionShape, transform: Isometry2D) ?CollisionContactInfo2D {
     switch (shape) {
-        CollisionShape.sphere => |sphere2| return checkSphereSphereCollision(sphere, sphere2, transform.inverse()),
+        CollisionShape.sphere => |sphere2| return checkSphereSphereCollision(sphere, sphere2, transform),
+        CollisionShape.rectangle => |rectangle| return if (checkRectangleSphereCollision(rectangle, sphere, transform)) |info| info.swapped() else null,
         else => return null,
     }
     return null;
