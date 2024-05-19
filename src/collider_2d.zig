@@ -13,7 +13,7 @@ pub const Collider2D = struct {
     shape: CollisionShape,
     transform: Isometry2D,
 };
-pub const CollisionInfo2D = struct { colliders: [2]*const Collider2D, contactInfo: CollisionDetection.CollisionContactInfo2D };
+pub const CollisionInfo2D = struct { colliders: [2]*const Collider2D, colliderIds: [2]u64, contactInfo: CollisionDetection.CollisionContactInfo2D };
 
 pub const CollisionDetector2D = struct {
     colliders: *[]const Collider2D,
@@ -38,7 +38,7 @@ pub const CollisionDetector2D = struct {
                 const offset = collider2.transform.invMul(collider1.transform);
                 const contactInfo = CollisionDetection.checkCollisions(collider1.shape, collider2.shape, offset);
                 if (contactInfo != null) {
-                    res = CollisionInfo2D{ .colliders = .{ collider1, collider2 }, .contactInfo = contactInfo.? };
+                    res = CollisionInfo2D{ .colliders = .{ collider1, collider2 }, .colliderIds = .{ index1, index2 }, .contactInfo = contactInfo.? };
                     break :outer;
                 }
             }

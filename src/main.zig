@@ -96,10 +96,10 @@ pub fn main() !void {
 
         try world.step(0.0);
         for (world.collisionList.items) |collisions| {
-            const point1 = collisions.colliders[0].transform.transform(collisions.contactInfo.point1);
+            const point1 = collisions.colliders[0].transform.transform(collisions.contactInfo.points[0]);
             ray.DrawCircle(@intFromFloat(point1.x), @intFromFloat(point1.y), 10.0, ray.YELLOW);
 
-            const point2 = collisions.colliders[1].transform.transform(collisions.contactInfo.point2);
+            const point2 = collisions.colliders[1].transform.transform(collisions.contactInfo.points[1]);
             ray.DrawCircle(@intFromFloat(point2.x), @intFromFloat(point2.y), 10.0, ray.YELLOW);
         }
 
