@@ -173,7 +173,7 @@ inline fn checkCollisionsLineShape(line: CollisionShapes.Line, shape: CollisionS
 
 inline fn checkCollisionsSphereShape(sphere: CollisionShapes.Sphere, shape: CollisionShape, transform: Isometry2D) ?CollisionContactInfo2D {
     switch (shape) {
-        CollisionShape.sphere => |sphere2| return checkSphereSphereCollision(sphere, sphere2, transform),
+        CollisionShape.sphere => |sphere2| return checkSphereSphereCollision(sphere, sphere2, transform.inverse()),
         CollisionShape.rectangle => |rectangle| return if (checkRectangleSphereCollision(rectangle, sphere, transform)) |info| info.swapped() else null,
         else => return null,
     }
