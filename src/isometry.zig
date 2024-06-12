@@ -34,6 +34,12 @@ pub const Isometry2D = struct {
         return iso;
     }
 
+    pub fn rotate(self: *const Isometry2D, _pt: Vec2) Vec2 {
+        var pt = _pt;
+        pt.rotateMut(self.rotation);
+        return pt;
+    }
+
     pub fn transform(self: *const Isometry2D, _pt: Vec2) Vec2 {
         var pt = _pt;
         pt.rotateMut(self.rotation);

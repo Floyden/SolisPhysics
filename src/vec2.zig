@@ -94,6 +94,13 @@ pub const Vec2 = struct {
         self.x = tX * @cos(ang) - tY * @sin(ang);
         self.y = tX * @sin(ang) + tY * @cos(ang);
     }
+
+    pub inline fn reflect(self: *const Vec2, axis: Vec2) Vec2 {
+        const d = self.dot(axis);
+        const x = 2 * d * axis.x - self.x;
+        const y = 2 * d * axis.y - self.y;
+        return Vec2.new(x, y);
+    }
 };
 
 const std = @import("std");
