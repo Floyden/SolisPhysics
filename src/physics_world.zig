@@ -1,6 +1,7 @@
 const std = @import("std");
 const Vec2 = @import("vec2.zig").Vec2;
 const Colliders = @import("collider_2d.zig");
+const Isometry2D = @import("isometry.zig").Isometry2D;
 
 pub const RigidBody = struct {
     colliderId: u64,
@@ -25,12 +26,14 @@ pub const PhysicsWorld = struct {
     colliderList: std.ArrayList(Colliders.Collider2D),
     rigidBodyList: std.ArrayList(RigidBody),
     collisionList: std.ArrayList(Colliders.CollisionInfo2D),
+    predictions: std.ArrayList(Isometry2D),
     gravity: Vec2,
 
     pub fn new() PhysicsWorld {
         return PhysicsWorld{
             .colliderList = std.ArrayList(Colliders.Collider2D).init(std.heap.page_allocator),
             .rigidBodyList = std.ArrayList(RigidBody).init(std.heap.page_allocator),
+            .predictions = std.ArrayList(Isometry2D).init(std.heap.page_allocator),
             .collisionList = std.ArrayList(Colliders.CollisionInfo2D).init(std.heap.page_allocator),
             .gravity = Vec2.new(0.0, 9.81),
         };
@@ -56,6 +59,19 @@ pub const PhysicsWorld = struct {
         return self.rigidBodyList.items.len - 1;
     }
 
+    pub fn getRigidBody(self: *PhysicsWorld, rid: u64) *RigidBody {
+        return &self.rigidBodyList.items[rid];
+    }
+
+    pub fn getRigidBodyOfCollider(self: *PhysicsWorld, cid: u64) ?*RigidBody {
+        for (self.rigidBodyList.items) |*rb| {
+            if (rb.colliderId == cid) {
+                return rb;
+            }
+        }
+        return null;
+    }
+
     pub fn resetForces(self: *PhysicsWorld) void {
         for (self.rigidBodyList.items) |*rb| {
             rb.resetForces();
@@ -69,6 +85,17 @@ pub const PhysicsWorld = struct {
         }
     }
 
+    pub fn predictMidpointMethod(self: *PhysicsWorld, dt: f32) void {
+        for (self.rigidBodyList.items, self.predictions.items) |rb, *pred| {
+            if (rb.mass == 0.0) continue;
+            var transform = &self.colliderList.items[rb.colliderId].transform;
+            const v_next = rb.velocity.add(rb.forces.scale(dt / rb.mass));
+            const _pred = transform.translation.add(v_next.add(rb.velocity).scale(0.5 * dt));
+
+            pred.translation = _pred;
+        }
+    }
+
     pub fn applyMidpointMethod(self: *PhysicsWorld, dt: f32) void {
         for (self.rigidBodyList.items) |*rb| {
             if (rb.mass == 0.0) continue;
@@ -79,18 +106,59 @@ pub const PhysicsWorld = struct {
         }
     }
 
-    pub fn step(self: *PhysicsWorld, dt: f32) !void {
-        if (dt != 0.0) {
-            self.resetForces();
-            self.applyGravity();
-
-            self.applyMidpointMethod(dt);
-        }
-
+    pub fn handleCollisions(self: *PhysicsWorld, dt: f32) !void {
         var detector = Colliders.CollisionDetector2D.new(&self.colliderList.items);
         self.collisionList.clearRetainingCapacity();
         while (detector.nextCollision()) |collision| {
             try self.collisionList.append(collision);
+            if (dt != 0.0) {
+                const rb1 = self.getRigidBodyOfCollider(collision.colliderIds[0]).?;
+                const rb2 = self.getRigidBodyOfCollider(collision.colliderIds[1]).?;
+
+                if (rb1.mass + rb2.mass == 0.0) continue; // Both bodies are static
+
+                const v1 = rb1.velocity;
+                const v2 = rb2.velocity;
+
+                const invMass = 1.0 / (rb1.mass + rb2.mass);
+
+                const normal1 = collision.colliders[0].transform.rotate(collision.contactInfo.normals[0]);
+                const normal2 = collision.colliders[1].transform.rotate(collision.contactInfo.normals[1]);
+
+                if (rb1.mass != 0.0) {
+                    rb1.velocity = v2.scale(rb2.mass * invMass).sub(v1).reflect(normal1);
+
+                    // [TODO] sqrt depth doesnt look right.
+                    const correction = normal2.scale(@sqrt(collision.contactInfo.depth) * rb1.mass * invMass);
+                    var collider: *Colliders.Collider2D = &self.colliderList.items[collision.colliderIds[0]];
+                    collider.transform.translation.addMut(correction);
+                }
+
+                if (rb2.mass != 0.0) {
+                    rb2.velocity = v1.scale(2 * rb1.mass / rb2.mass).add(v2.scale(1.0 - rb1.mass / invMass)).reflect(normal2);
+
+                    const correction = normal1.scale(@sqrt(collision.contactInfo.depth) * rb2.mass * invMass);
+                    var collider = &self.colliderList.items[collision.colliderIds[1]];
+                    collider.transform.translation.addMut(correction);
+                }
+            }
+        }
+    }
+
+    pub fn step(self: *PhysicsWorld, dt: f32) !void {
+        // Assert same size
+        self.predictions.resize(self.rigidBodyList.items.len) catch unreachable;
+        if (dt != 0.0) {
+            self.resetForces();
+            self.applyGravity();
+
+            self.predictMidpointMethod(dt);
+        }
+
+        try self.handleCollisions(dt);
+
+        if (dt != 0.0) {
+            self.applyMidpointMethod(dt);
         }
     }
 };
