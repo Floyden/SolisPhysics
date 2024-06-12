@@ -112,8 +112,9 @@ pub fn checkRectangleSphereCollision(rect: CollisionShapes.Rectangle, sphere: Co
     invRota.y *= -1.0;
     const normal = diff.normalize().rotate(invRota);
     const point = normal.scale(-sphere.radius);
+    const depth = difference.transform(point).sub(corner).len();
 
-    return CollisionContactInfo2D{ .points = .{ corner, point }, .normals = .{ normalRect, normal.scale(-1.0) }, .depth = 0.0 };
+    return CollisionContactInfo2D{ .points = .{ corner, point }, .normals = .{ normalRect, normal.scale(-1.0) }, .depth = depth };
 }
 
 fn checkLineRectangleCollision(line: CollisionShapes.Line, rectangle: CollisionShapes.Rectangle, difference: Isometry2D) ?CollisionContactInfo2D {
@@ -149,14 +150,14 @@ fn checkSphereSphereCollision(sphere1: CollisionShapes.Sphere, sphere2: Collisio
     if (diff < 0) return null;
     // Special case if two spheres share the same origin
     if (difference.translation.len2() == 0)
-        return CollisionContactInfo2D{ .points = .{ Vec2.zero(), Vec2.zero() }, .normals = .{ Vec2.up(), Vec2.up() }, .depth = radiusSum };
+        return CollisionContactInfo2D{ .points = .{ Vec2.zero(), Vec2.zero() }, .normals = .{ Vec2.up(), Vec2.up() }, .depth = @max(sphere1.radius, sphere2.radius) };
 
     var norm = difference;
     norm.translation.normalizeMut();
     const point1 = norm.translation.scale(sphere1.radius);
     const invDiff = norm.inverse();
     const point2 = invDiff.translation.scale(sphere2.radius);
-    const depth = @sqrt(diff);
+    const depth = radiusSum - difference.translation.len();
 
     return CollisionContactInfo2D{ .points = .{ point1, point2 }, .normals = .{ point1.normalize(), point2.normalize() }, .depth = depth };
 }
