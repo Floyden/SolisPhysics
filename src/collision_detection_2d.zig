@@ -90,11 +90,19 @@ pub fn checkRectangleSphereCollision(rect: CollisionShapes.Rectangle, sphere: Co
     var corner = Vec2.new(std.math.copysign(rect.halfWidth, difference.translation.x), std.math.copysign(rect.halfHeight, difference.translation.y));
     const absDiff = Vec2.new(@abs(difference.translation.x), @abs(difference.translation.y));
 
+    var normalRect = Vec2.zero();
+
     if (absDiff.x - sphere.radius <= rect.halfWidth and absDiff.y < rect.halfHeight) {
         corner.y = difference.translation.y;
+        normalRect.x = std.math.copysign(@as(f32, 1.0), difference.translation.x);
     } else if (absDiff.y - sphere.radius <= rect.halfHeight and absDiff.x < rect.halfWidth) {
         corner.x = difference.translation.x;
-    } else if (difference.translation.sub(corner).len2() >= sphere.radius * sphere.radius) return null;
+        normalRect.y = std.math.copysign(@as(f32, 1.0), difference.translation.y);
+    } else if (difference.translation.sub(corner).len2() >= sphere.radius * sphere.radius) {
+        return null;
+    } else {
+        normalRect = corner.normalize();
+    }
 
     var diff = difference.translation.sub(corner);
     if (diff.x == 0 and diff.y == 0)
@@ -102,10 +110,10 @@ pub fn checkRectangleSphereCollision(rect: CollisionShapes.Rectangle, sphere: Co
 
     var invRota = difference.rotation;
     invRota.y *= -1.0;
-    const normal = diff.normalize();
-    const point = normal.scale(-sphere.radius).rotate(invRota);
+    const normal = diff.normalize().rotate(invRota);
+    const point = normal.scale(-sphere.radius);
 
-    return CollisionContactInfo2D{ .points = .{ corner, point }, .normals = .{ corner.normalize(), normal }, .depth = 0.0 };
+    return CollisionContactInfo2D{ .points = .{ corner, point }, .normals = .{ normalRect, normal.scale(-1.0) }, .depth = 0.0 };
 }
 
 fn checkLineRectangleCollision(line: CollisionShapes.Line, rectangle: CollisionShapes.Rectangle, difference: Isometry2D) ?CollisionContactInfo2D {
