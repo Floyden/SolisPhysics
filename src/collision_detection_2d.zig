@@ -47,18 +47,15 @@ fn getLineLineIntersection(a: Vec2, b: Vec2, c: Vec2, d: Vec2) ?Vec2 {
 
 // [TODO] The collision points dont seem to be correct, please rework
 pub fn checkRectangleRectangleCollision(rect1: CollisionShapes.Rectangle, rect2: CollisionShapes.Rectangle, difference: Isometry2D) ?CollisionContactInfo2D {
-    const closest1 = checkRectangleRectangleCollisionAxis(rect1, rect2, difference);
-    if (closest1 == null)
-        return null;
+    const closest1 = checkRectangleRectangleCollisionAxis(rect1, rect2, difference) orelse return null;
 
     const invDiff = difference.inverse();
-    const closest2 = checkRectangleRectangleCollisionAxis(rect2, rect1, invDiff);
-    if (closest2 == null) return null;
+    const closest2 = checkRectangleRectangleCollisionAxis(rect2, rect1, invDiff) orelse return null;
 
     var point1 = Vec2.new(std.math.copysign(rect1.halfWidth, invDiff.translation.x), std.math.copysign(rect1.halfHeight, invDiff.translation.y));
     var point2 = Vec2.new(std.math.copysign(rect2.halfWidth, difference.translation.x), std.math.copysign(rect2.halfHeight, difference.translation.y));
 
-    if (closest1.? >= closest2.?) {
+    if (closest1 >= closest2) {
         var c2Ortho = Vec2.new(point2.x, -point2.y);
         const point2T = invDiff.transform(point2);
 
@@ -135,12 +132,10 @@ fn checkLineLineCollision(line1: CollisionShapes.Line, line2: CollisionShapes.Li
     const start1 = difference.transform(Vec2.new(-line1.length / 2, 0));
     const end1 = difference.transform(Vec2.new(line1.length / 2, 0));
 
-    const intersection = getLineLineIntersection(start1, end1, start2, end2);
-    if (intersection == null) return null;
+    const point2 = getLineLineIntersection(start1, end1, start2, end2) orelse return null;
     const invDiff = difference.inverse();
 
-    const point1 = invDiff.transform(intersection.?);
-    const point2 = intersection.?;
+    const point1 = invDiff.transform(point2);
     return CollisionContactInfo2D{ .points = .{ point1, point2 }, .normals = .{ point1.normalize(), point2.normalize() }, .depth = 0.0 };
 }
 
