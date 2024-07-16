@@ -15,6 +15,10 @@ pub fn build(b: *std.Build) void {
     // set a preferred release mode, allowing the user to decide how to optimize.
     const optimize = b.standardOptimizeOption(.{});
 
+    const lib = b.addStaticLibrary(.{ .name = "solisphysics", .root_source_file = .{ .path = "src/ffi.zig" }, .target = target, .optimize = optimize, .pic = true });
+
+    b.installArtifact(lib);
+
     const exe = b.addExecutable(.{
         .name = "ZigPhysics",
         // In this case the main source file is merely a path, however, in more

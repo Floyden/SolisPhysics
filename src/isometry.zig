@@ -1,7 +1,7 @@
 const Vec2 = @import("vec2.zig").Vec2;
 const std = @import("std");
 
-pub const Isometry2D = struct {
+pub const Isometry2D = extern struct {
     translation: Vec2,
     rotation: Vec2,
 
