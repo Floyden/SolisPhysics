@@ -42,7 +42,7 @@ pub fn main() !void {
     ray.InitWindow(600, 480, "Test");
     defer ray.CloseWindow();
 
-    var world = PhysicsWorld.new();
+    var world = PhysicsWorld.new(std.heap.page_allocator);
     defer world.deinit();
 
     const shape1 = CollisionShape.newRectangle(50.0, 50.0);

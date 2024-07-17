@@ -29,12 +29,12 @@ pub const PhysicsWorld = struct {
     predictions: std.ArrayList(Isometry2D),
     gravity: Vec2,
 
-    pub fn new() PhysicsWorld {
+    pub fn new(allocator: std.mem.Allocator) PhysicsWorld {
         return PhysicsWorld{
-            .colliderList = std.ArrayList(Colliders.Collider2D).init(std.heap.page_allocator),
-            .rigidBodyList = std.ArrayList(RigidBody).init(std.heap.page_allocator),
-            .predictions = std.ArrayList(Isometry2D).init(std.heap.page_allocator),
-            .collisionList = std.ArrayList(Colliders.CollisionInfo2D).init(std.heap.page_allocator),
+            .colliderList = std.ArrayList(Colliders.Collider2D).init(allocator),
+            .rigidBodyList = std.ArrayList(RigidBody).init(allocator),
+            .predictions = std.ArrayList(Isometry2D).init(allocator),
+            .collisionList = std.ArrayList(Colliders.CollisionInfo2D).init(allocator),
             .gravity = Vec2.new(0.0, 9.81),
         };
     }

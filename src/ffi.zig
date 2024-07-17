@@ -16,7 +16,7 @@ export fn Vec2_addMut(a: *Vec2, b: Vec2) callconv(.C) void {
 
 export fn PhysicsWorld_Create() callconv(.C) *PhysicsWorld {
     const world = std.heap.page_allocator.create(PhysicsWorld) catch unreachable;
-    world.* = PhysicsWorld.new();
+    world.* = PhysicsWorld.new(std.heap.page_allocator);
 
     return world;
 }
