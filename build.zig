@@ -15,15 +15,17 @@ pub fn build(b: *std.Build) void {
     // set a preferred release mode, allowing the user to decide how to optimize.
     const optimize = b.standardOptimizeOption(.{});
 
-    const lib = b.addStaticLibrary(.{ .name = "solisphysics", .root_source_file = .{ .path = "src/ffi.zig" }, .target = target, .optimize = optimize, .pic = true });
+    const ffiPath = b.path("src/ffi.zig");
+    const lib = b.addStaticLibrary(.{ .name = "solisphysics", .root_source_file = ffiPath, .target = target, .optimize = optimize, .pic = true });
 
     b.installArtifact(lib);
 
+    const mainPath = b.path("src/main.zig");
     const exe = b.addExecutable(.{
         .name = "ZigPhysics",
         // In this case the main source file is merely a path, however, in more
         // complicated build scripts, this could be a generated file.
-        .root_source_file = .{ .path = "src/main.zig" },
+        .root_source_file = mainPath,
         .target = target,
         .optimize = optimize,
     });
@@ -61,7 +63,7 @@ pub fn build(b: *std.Build) void {
     // Creates a step for unit testing. This only builds the test executable
     // but does not run it.
     const unit_tests = b.addTest(.{
-        .root_source_file = .{ .path = "src/main.zig" },
+        .root_source_file = mainPath,
         .target = target,
         .optimize = optimize,
     });
