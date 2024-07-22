@@ -126,7 +126,7 @@ pub const PhysicsWorld = struct {
                 const normal2 = collision.colliders[1].transform.rotate(collision.contactInfo.normals[1]);
 
                 if (rb1.mass != 0.0) {
-                    rb1.velocity = v2.scale(rb2.mass * invMass).sub(v1).reflect(normal1);
+                    rb1.velocity = v2.scale(rb2.mass * invMass).sub(v1).reflect(normal2);
 
                     const correction = normal2.scale(collision.contactInfo.depth * rb1.mass * invMass);
                     var collider = &self.colliderList.items[collision.colliderIds[0]];
@@ -134,7 +134,7 @@ pub const PhysicsWorld = struct {
                 }
 
                 if (rb2.mass != 0.0) {
-                    rb2.velocity = v1.scale(2 * rb1.mass / rb2.mass).add(v2.scale(1.0 - rb1.mass / invMass)).reflect(normal2);
+                    rb2.velocity = v1.scale(2 * rb1.mass / rb2.mass).add(v2.scale(1.0 - rb1.mass / invMass)).reflect(normal1);
 
                     const correction = normal1.scale(collision.contactInfo.depth * rb2.mass * invMass);
                     var collider = &self.colliderList.items[collision.colliderIds[1]];
