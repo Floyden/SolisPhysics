@@ -63,9 +63,9 @@ pub fn checkRectangleRectangleCollision(rect1: CollisionShapes.Rectangle, rect2:
         const e2 = invDiff.transform(c2Ortho.scale(-1.0));
         c2Ortho = if (e1.len2() > e2.len2()) e2 else e1;
 
-        const intersection = getLineLineIntersection(point2T, c2Ortho, point1, Vec2.zero());
-        if (intersection != null)
-            point2 = difference.transform(intersection.?);
+        const intersectionOpt = getLineLineIntersection(point2T, c2Ortho, point1, Vec2.zero());
+        if (intersectionOpt) |intersection|
+            point2 = difference.transform(intersection);
     } else {
         var c1Ortho = Vec2.new(point1.x, -point1.y);
         const point1T = difference.transform(point1);
@@ -74,12 +74,13 @@ pub fn checkRectangleRectangleCollision(rect1: CollisionShapes.Rectangle, rect2:
         const e2 = difference.transform(c1Ortho.scale(-1.0));
         c1Ortho = if (e1.len2() > e2.len2()) e2 else e1;
 
-        const intersection = getLineLineIntersection(point1T, c1Ortho, point2, Vec2.zero());
-        if (intersection != null)
-            point1 = invDiff.transform(intersection.?);
+        const intersectionOpt = getLineLineIntersection(point1T, c1Ortho, point2, Vec2.zero());
+        if (intersectionOpt) |intersection|
+            point1 = invDiff.transform(intersection);
     }
 
-    return CollisionContactInfo2D{ .points = .{ point1, point2 }, .normals = .{ point1.normalize(), point2.normalize() }, .depth = point2.sub(point1).len() };
+    const depth = point2.sub(difference.transform(point1)).len();
+    return CollisionContactInfo2D{ .points = .{ point1, point2 }, .normals = .{ point1.normalize(), point2.normalize() }, .depth = depth };
 }
 
 pub fn checkRectangleSphereCollision(rect: CollisionShapes.Rectangle, sphere: CollisionShapes.Sphere, difference: Isometry2D) ?CollisionContactInfo2D {

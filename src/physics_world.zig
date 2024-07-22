@@ -129,7 +129,7 @@ pub const PhysicsWorld = struct {
                     rb1.velocity = v2.scale(rb2.mass * invMass).sub(v1).reflect(normal1);
 
                     const correction = normal2.scale(collision.contactInfo.depth * rb1.mass * invMass);
-                    var collider: *Colliders.Collider2D = &self.colliderList.items[collision.colliderIds[0]];
+                    var collider = &self.colliderList.items[collision.colliderIds[0]];
                     collider.transform.translation.addMut(correction);
                 }
 
