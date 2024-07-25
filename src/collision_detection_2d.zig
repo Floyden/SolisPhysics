@@ -71,8 +71,8 @@ pub fn checkRectangleRectangleCollision(rect1: CollisionShapes.Rectangle, rect2:
             point2 = difference.transform(intersection);
 
         // [TODO] Check if this is correct
-        normal2.x = if (std.math.approxEqAbs(f32, @abs(point2.x), rect1.halfWidth, 0.0001)) std.math.copysign(@as(f32, 1.0), point2.x) else 0.0;
-        normal2.y = if (std.math.approxEqAbs(f32, @abs(point2.y), rect1.halfHeight, 0.0001)) std.math.copysign(@as(f32, 1.0), point2.y) else 0.0;
+        normal2.x = if (std.math.approxEqRel(f32, @abs(point2.x), rect2.halfWidth, 0.0001)) std.math.copysign(@as(f32, 1.0), point2.x) else 0.0;
+        normal2.y = if (std.math.approxEqRel(f32, @abs(point2.y), rect2.halfHeight, 0.0001)) std.math.copysign(@as(f32, 1.0), point2.y) else 0.0;
         if (normal2.len2() > 1.0) normal2.normalizeMut();
         normal1 = invDiff.rotate(normal2.scale(-1.0));
     } else {
@@ -89,8 +89,8 @@ pub fn checkRectangleRectangleCollision(rect1: CollisionShapes.Rectangle, rect2:
         if (intersectionOpt) |intersection|
             point1 = invDiff.transform(intersection);
 
-        normal1.x = if (std.math.approxEqAbs(f32, @abs(point1.x), rect1.halfWidth, 0.0001)) std.math.copysign(@as(f32, 1.0), point1.x) else 0.0;
-        normal1.y = if (std.math.approxEqAbs(f32, @abs(point1.y), rect1.halfHeight, 0.0001)) std.math.copysign(@as(f32, 1.0), point1.y) else 0.0;
+        normal1.x = if (std.math.approxEqRel(f32, @abs(point1.x), rect1.halfWidth, 0.0001)) std.math.copysign(@as(f32, 1.0), point1.x) else 0.0;
+        normal1.y = if (std.math.approxEqRel(f32, @abs(point1.y), rect1.halfHeight, 0.0001)) std.math.copysign(@as(f32, 1.0), point1.y) else 0.0;
         if (normal1.len2() > 1.0) normal1.normalizeMut();
         normal2 = difference.rotate(normal1.scale(-1.0));
     }
