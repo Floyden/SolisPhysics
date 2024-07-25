@@ -46,24 +46,25 @@ pub fn main() !void {
     defer world.deinit();
 
     const shape1 = CollisionShape.newRectangle(50.0, 50.0);
+    // const shape1 = CollisionShape.newSphere(50);
     const shape2 = CollisionShape.newRectangle(50.0, 50.0);
-    const shape3 = CollisionShape.newRectangle(600, 50);
-    // const shape1 = CollisionShape.newLine(100);
-    // const shape2 = CollisionShape.newLine(100);
-    // const shape3 = CollisionShape{ .sphere = CollisionShapes.Sphere{ .radius = 50.0 } };
-    const transform = Isometry2D.new(Vec2.new(350.0, 240.0), Vec2.new(0, 1.0));
-    const transform2 = Isometry2D.new(Vec2.new(200.0, 200.0), Vec2.new(1.0 / @sqrt(2.0), -1.0 / @sqrt(2.0)));
-    const transform3 = Isometry2D.fromTranslation(Vec2.new(300.0, 400.0));
+    const shape3 = CollisionShape.newSphere(100);
+    // const shape2 = CollisionShape.newSphere(100);
+    // const shape3 = CollisionShape.newSphere(50);
+    const transform = Isometry2D.new(Vec2.new(250.0, 250.0), Vec2.new(0, 1.0));
+    const transform2 = Isometry2D.new(Vec2.new(200.0, 400.0), Vec2.new(0, 1.0)); //Vec2.new(1.0 / @sqrt(2.0), -1.0 / @sqrt(2.0)));
+    const transform3 = Isometry2D.fromTranslation(Vec2.new(400.0, 400.0));
 
     const c1 = world.addCollider(Collider2D.new(shape1, transform));
     const c2 = world.addCollider(Collider2D.new(shape2, transform2));
     const c3 = world.addCollider(Collider2D.new(shape3, transform3));
 
-    _ = world.addRigidBody(RigidBody.new(c1, 1.0));
-    _ = world.addRigidBody(RigidBody.new(c2, 1.0));
+    const r1 = world.addRigidBody(RigidBody.new(c1, 1.0));
+    const r2 = world.addRigidBody(RigidBody.new(c2, 0.0));
     _ = world.addRigidBody(RigidBody.new(c3, 0.0));
 
     ray.SetTargetFPS(30);
+    var timestep: f32 = 0.0;
     while (!ray.WindowShouldClose()) {
         ray.ClearBackground(ray.Color{ .r = 0, .g = 0, .b = 0, .a = 0 });
         ray.BeginDrawing();
@@ -78,6 +79,8 @@ pub fn main() !void {
             iso.translation.x = mouseX;
             iso.translation.y = mouseY;
             iso.rotation.rotateRad(rotation);
+            world.getRigidBody(r1).resetForces();
+            world.getRigidBody(r1).velocity = Vec2.zero();
         }
         if (ray.IsMouseButtonDown(1)) {
             const rotation = ray.GetMouseWheelMove() * 0.1 + keyRotation;
@@ -85,7 +88,11 @@ pub fn main() !void {
             iso.translation.x = mouseX;
             iso.translation.y = mouseY;
             iso.rotation.rotateRad(rotation);
+            world.getRigidBody(r2).resetForces();
+            world.getRigidBody(r2).velocity = Vec2.zero();
         }
+        if (ray.IsKeyPressed(ray.KEY_P))
+            timestep = if (timestep == 0.0) 0.1 else 0.0;
 
         const r = world.getCollider(c1);
         const s = world.getCollider(c2);
@@ -94,13 +101,17 @@ pub fn main() !void {
         drawPhysicsObject(s, ray.MAROON);
         drawPhysicsObject(t, ray.MAROON);
 
-        try world.step(0.0);
+        try world.step(timestep);
         for (world.collisionList.items) |collisions| {
             const point1 = collisions.colliders[0].transform.transform(collisions.contactInfo.points[0]);
+            const normal1 = collisions.colliders[0].transform.rotate(collisions.contactInfo.normals[0].scale(10.0)).add(point1);
             ray.DrawCircle(@intFromFloat(point1.x), @intFromFloat(point1.y), 10.0, ray.YELLOW);
+            ray.DrawLineEx(ray.Vector2{ .x = point1.x, .y = point1.y }, ray.Vector2{ .x = normal1.x, .y = normal1.y }, 1.0, ray.RED);
 
             const point2 = collisions.colliders[1].transform.transform(collisions.contactInfo.points[1]);
+            const normal2 = collisions.colliders[1].transform.rotate(collisions.contactInfo.normals[1].scale(10.0)).add(point2);
             ray.DrawCircle(@intFromFloat(point2.x), @intFromFloat(point2.y), 10.0, ray.YELLOW);
+            ray.DrawLineEx(ray.Vector2{ .x = point2.x, .y = point2.y }, ray.Vector2{ .x = normal2.x, .y = normal2.y }, 1.0, ray.RED);
         }
 
         ray.EndDrawing();
