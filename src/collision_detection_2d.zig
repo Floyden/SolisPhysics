@@ -45,7 +45,6 @@ fn getLineLineIntersection(a: Vec2, b: Vec2, c: Vec2, d: Vec2) ?Vec2 {
     return a.add(b.sub(a).scale(t));
 }
 
-// [TODO] The collision points dont seem to be correct, please rework
 pub fn checkRectangleRectangleCollision(rect1: CollisionShapes.Rectangle, rect2: CollisionShapes.Rectangle, difference: Isometry2D) ?CollisionContactInfo2D {
     const closest1 = checkRectangleRectangleCollisionAxis(rect1, rect2, difference) orelse return null;
 
@@ -54,8 +53,11 @@ pub fn checkRectangleRectangleCollision(rect1: CollisionShapes.Rectangle, rect2:
 
     var point1 = Vec2.new(std.math.copysign(rect1.halfWidth, invDiff.translation.x), std.math.copysign(rect1.halfHeight, invDiff.translation.y));
     var point2 = Vec2.new(std.math.copysign(rect2.halfWidth, difference.translation.x), std.math.copysign(rect2.halfHeight, difference.translation.y));
+    var normal1 = Vec2.zero();
+    var normal2 = Vec2.zero();
 
     if (closest1 >= closest2) {
+        // Corner of rect1 should be colliding with the edge of rect2
         var c2Ortho = Vec2.new(point2.x, -point2.y);
         const point2T = invDiff.transform(point2);
 
@@ -63,10 +65,18 @@ pub fn checkRectangleRectangleCollision(rect1: CollisionShapes.Rectangle, rect2:
         const e2 = invDiff.transform(c2Ortho.scale(-1.0));
         c2Ortho = if (e1.len2() > e2.len2()) e2 else e1;
 
+        // Get intersection point
         const intersectionOpt = getLineLineIntersection(point2T, c2Ortho, point1, Vec2.zero());
         if (intersectionOpt) |intersection|
             point2 = difference.transform(intersection);
+
+        // [TODO] Check if this is correct
+        normal2.x = if (std.math.approxEqAbs(f32, @abs(point2.x), rect1.halfWidth, 0.0001)) std.math.copysign(@as(f32, 1.0), point2.x) else 0.0;
+        normal2.y = if (std.math.approxEqAbs(f32, @abs(point2.y), rect1.halfHeight, 0.0001)) std.math.copysign(@as(f32, 1.0), point2.y) else 0.0;
+        if (normal2.len2() > 1.0) normal2.normalizeMut();
+        normal1 = invDiff.rotate(normal2.scale(-1.0));
     } else {
+        // Corner of rect2 should be colliding with the edge of rect1
         var c1Ortho = Vec2.new(point1.x, -point1.y);
         const point1T = difference.transform(point1);
 
@@ -74,13 +84,19 @@ pub fn checkRectangleRectangleCollision(rect1: CollisionShapes.Rectangle, rect2:
         const e2 = difference.transform(c1Ortho.scale(-1.0));
         c1Ortho = if (e1.len2() > e2.len2()) e2 else e1;
 
+        // Get intersection point
         const intersectionOpt = getLineLineIntersection(point1T, c1Ortho, point2, Vec2.zero());
         if (intersectionOpt) |intersection|
             point1 = invDiff.transform(intersection);
+
+        normal1.x = if (std.math.approxEqAbs(f32, @abs(point1.x), rect1.halfWidth, 0.0001)) std.math.copysign(@as(f32, 1.0), point1.x) else 0.0;
+        normal1.y = if (std.math.approxEqAbs(f32, @abs(point1.y), rect1.halfHeight, 0.0001)) std.math.copysign(@as(f32, 1.0), point1.y) else 0.0;
+        if (normal1.len2() > 1.0) normal1.normalizeMut();
+        normal2 = difference.rotate(normal1.scale(-1.0));
     }
 
     const depth = point2.sub(difference.transform(point1)).len();
-    return CollisionContactInfo2D{ .points = .{ point1, point2 }, .normals = .{ point1.normalize(), point2.normalize() }, .depth = depth };
+    return CollisionContactInfo2D{ .points = .{ point1, point2 }, .normals = .{ normal1, normal2 }, .depth = depth };
 }
 
 pub fn checkRectangleSphereCollision(rect: CollisionShapes.Rectangle, sphere: CollisionShapes.Sphere, difference: Isometry2D) ?CollisionContactInfo2D {
