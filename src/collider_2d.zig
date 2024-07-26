@@ -36,11 +36,10 @@ pub const CollisionDetector2D = struct {
                 const collider2: *const Collider2D = &self.colliders.*[index2];
 
                 const offset = collider2.transform.invMul(collider1.transform);
-                const contactInfo = CollisionDetection.checkCollisions(collider1.shape, collider2.shape, offset);
-                if (contactInfo != null) {
-                    res = CollisionInfo2D{ .colliders = .{ collider1, collider2 }, .colliderIds = .{ index1, index2 }, .contactInfo = contactInfo.? };
-                    break :outer;
-                }
+                const contactInfo = CollisionDetection.checkCollisions(collider1.shape, collider2.shape, offset) orelse continue;
+
+                res = CollisionInfo2D{ .colliders = .{ collider1, collider2 }, .colliderIds = .{ index1, index2 }, .contactInfo = contactInfo };
+                break :outer;
             }
             index1 += 1;
             index2 = index1 + 1;
