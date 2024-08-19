@@ -76,8 +76,9 @@ pub fn checkRectangleRectangleCollision(rect1: CollisionShapes.Rectangle, rect2:
         points[idx] = transforms[1 - idx].transform(intersection);
 
     // [TODO] Check if this is correct
-    normals[idx].x = if (std.math.approxEqAbs(f32, @abs(points[idx].x), rects[idx].halfWidth, 0.0001)) std.math.copysign(@as(f32, 1.0), points[idx].x) else 0.0;
-    normals[idx].y = if (std.math.approxEqAbs(f32, @abs(points[idx].y), rects[idx].halfHeight, 0.0001)) std.math.copysign(@as(f32, 1.0), points[idx].y) else 0.0;
+    const tolerance = comptime @sqrt(std.math.floatEps(f32));
+    normals[idx].x = if (std.math.approxEqRel(f32, @abs(points[idx].x), rects[idx].halfWidth, tolerance)) std.math.copysign(@as(f32, 1.0), points[idx].x) else 0.0;
+    normals[idx].y = if (std.math.approxEqRel(f32, @abs(points[idx].y), rects[idx].halfHeight, tolerance)) std.math.copysign(@as(f32, 1.0), points[idx].y) else 0.0;
     if (normals[idx].len2() > 1.0) normals[idx].normalizeMut();
     normals[1 - idx] = transforms[idx].rotate(normals[idx].scale(-1.0));
 
