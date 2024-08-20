@@ -7,18 +7,29 @@ pub const RigidBody = struct {
     colliderId: u64,
     velocity: Vec2,
     forces: Vec2,
+    angularVelocity: f32,
+    torque: f32,
     mass: f32,
 
     pub fn new(collider: u64, mass: f32) RigidBody {
-        return RigidBody{ .colliderId = collider, .velocity = Vec2.zero(), .forces = Vec2.zero(), .mass = mass };
+        return RigidBody{
+            .colliderId = collider,
+            .velocity = Vec2.zero(),
+            .angularVelocity = 0.0,
+            .forces = Vec2.zero(),
+            .torque = 0,
+            .mass = mass,
+        };
     }
 
-    pub inline fn applyForce(self: *RigidBody, force: Vec2) void {
+    pub inline fn applyForce(self: *RigidBody, force: Vec2, point: Vec2) void {
         self.forces.addMut(force);
+        self.torque += force.y * point.x - force.x * point.y;
     }
 
     pub inline fn resetForces(self: *RigidBody) void {
         self.forces = Vec2.zero();
+        self.torque = 0;
     }
 };
 
@@ -81,7 +92,7 @@ pub const PhysicsWorld = struct {
     pub fn applyGravity(self: *PhysicsWorld) void {
         for (self.rigidBodyList.items) |*rb| {
             if (rb.mass == 0.0) continue;
-            rb.applyForce(self.gravity);
+            rb.applyForce(self.gravity, Vec2.zero());
         }
     }
 
