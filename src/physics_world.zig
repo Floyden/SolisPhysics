@@ -131,16 +131,19 @@ pub const PhysicsWorld = struct {
                 const v1 = rb1.velocity;
                 const v2 = rb2.velocity;
 
-                const invMass = 1.0 / (rb1.mass + rb2.mass);
-                const relativeMass = rb1.mass * rb2.mass * invMass;
-                const impulse1 = v1.scale(2 * rb1.mass);
-                const impulse2 = v2.scale(relativeMass);
+                const normal1 = collision.colliders[0].transform.rotate(collision.contactInfo.normals[0]).normalize();
+                const normal2 = collision.colliders[1].transform.rotate(collision.contactInfo.normals[1]).normalize();
 
-                const normal1 = collision.colliders[0].transform.rotate(collision.contactInfo.normals[0]);
-                const normal2 = collision.colliders[1].transform.rotate(collision.contactInfo.normals[1]);
+                const vrel = v2.sub(v1);
+                const vn1 = vrel.dot(normal1);
+                const vn2 = vrel.dot(normal2);
+
+                const invMass = 1.0 / (rb1.mass + rb2.mass);
+
+                const impulse = (vn2 - vn1) / invMass;
 
                 if (rb1.mass != 0.0) {
-                    rb1.applyForce(impulse2.sub(impulse1).scale(1.0 / dt), Vec2.zero());
+                    rb1.applyForce(normal2.scale(impulse * 1.0 / dt), Vec2.zero());
 
                     const correction = normal2.scale(collision.contactInfo.depth * rb1.mass * invMass * 1.1);
                     var collider = &self.colliderList.items[collision.colliderIds[0]];
@@ -148,7 +151,7 @@ pub const PhysicsWorld = struct {
                 }
 
                 if (rb2.mass != 0.0) {
-                    rb1.applyForce(impulse1.sub(impulse2).scale(1.0 / dt), Vec2.zero());
+                    rb2.applyForce(normal1.scale(impulse * 1.0 / dt), Vec2.zero());
 
                     const correction = normal1.scale(collision.contactInfo.depth * rb2.mass * invMass * 1.1);
                     var collider = &self.colliderList.items[collision.colliderIds[1]];
