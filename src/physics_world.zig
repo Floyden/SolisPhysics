@@ -93,7 +93,7 @@ pub const PhysicsWorld = struct {
     pub fn applyGravity(self: *PhysicsWorld) void {
         for (self.rigidBodyList.items) |*rb| {
             if (rb.mass == 0.0) continue;
-            rb.applyForce(self.gravity, Vec2.zero());
+            rb.applyForce(self.gravity.scale(rb.mass), Vec2.zero());
         }
     }
 
