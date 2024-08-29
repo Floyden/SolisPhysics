@@ -58,6 +58,7 @@ pub const PhysicsWorld = struct {
 
     pub fn addCollider(self: *PhysicsWorld, collider: Colliders.Collider2D) u64 {
         self.colliderList.append(collider) catch unreachable;
+        self.predictions.append(collider.transform) catch unreachable;
         return self.colliderList.items.len - 1;
     }
 
@@ -118,7 +119,7 @@ pub const PhysicsWorld = struct {
     }
 
     pub fn handleCollisions(self: *PhysicsWorld, dt: f32) !void {
-        var detector = Colliders.CollisionDetector2D.new(&self.colliderList.items);
+        var detector = Colliders.CollisionDetector2D.new(&self.colliderList.items, &self.predictions.items);
         self.collisionList.clearRetainingCapacity();
         while (detector.nextCollision()) |collision| {
             try self.collisionList.append(collision);
@@ -163,7 +164,10 @@ pub const PhysicsWorld = struct {
 
     pub fn step(self: *PhysicsWorld, dt: f32) !void {
         // Assert same size
-        self.predictions.resize(self.rigidBodyList.items.len) catch unreachable;
+        self.predictions.resize(self.colliderList.items.len) catch unreachable;
+        for (self.colliderList.items, 0..) |collider, i| {
+            self.predictions.items[i] = collider.transform;
+        }
         if (dt != 0.0) {
             self.resetForces();
             self.applyGravity();

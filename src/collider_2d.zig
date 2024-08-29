@@ -17,11 +17,12 @@ pub const CollisionInfo2D = struct { colliders: [2]*const Collider2D, colliderId
 
 pub const CollisionDetector2D = struct {
     colliders: *[]const Collider2D,
+    predictions: *[]const Isometry2D,
     index1: usize,
     index2: usize,
 
-    pub fn new(colliders: *[]const Collider2D) CollisionDetector2D {
-        return CollisionDetector2D{ .colliders = colliders, .index1 = 0, .index2 = 1 };
+    pub fn new(colliders: *[]const Collider2D, predictions: *[]const Isometry2D) CollisionDetector2D {
+        return CollisionDetector2D{ .colliders = colliders, .predictions = predictions, .index1 = 0, .index2 = 1 };
     }
 
     pub fn nextCollision(self: *CollisionDetector2D) ?CollisionInfo2D {
@@ -35,7 +36,7 @@ pub const CollisionDetector2D = struct {
                 const collider1: *const Collider2D = &self.colliders.*[index1];
                 const collider2: *const Collider2D = &self.colliders.*[index2];
 
-                const offset = collider2.transform.invMul(collider1.transform);
+                const offset = self.predictions.*[index2].invMul(self.predictions.*[index1]);
                 const contactInfo = CollisionDetection.checkCollisions(collider1.shape, collider2.shape, offset) orelse continue;
 
                 res = CollisionInfo2D{ .colliders = .{ collider1, collider2 }, .colliderIds = .{ index1, index2 }, .contactInfo = contactInfo };
