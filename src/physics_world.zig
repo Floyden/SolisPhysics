@@ -56,6 +56,14 @@ pub const PhysicsWorld = struct {
         self.rigidBodyList.deinit();
         self.colliderList.deinit();
         self.collisionList.deinit();
+        self.predictions.deinit();
+    }
+
+    pub fn clear(self: *PhysicsWorld) void {
+        self.rigidBodyList.clearRetainingCapacity();
+        self.colliderList.clearRetainingCapacity();
+        self.collisionList.clearRetainingCapacity();
+        self.predictions.clearRetainingCapacity();
     }
 
     pub fn addCollider(self: *PhysicsWorld, collider: Colliders.Collider2D) u64 {
