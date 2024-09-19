@@ -141,36 +141,36 @@ pub const PhysicsWorld = struct {
 
                 if (rb1.mass + rb2.mass == 0.0) continue; // Both bodies are static
 
-                const v1 = rb1.velocity;
-                const v2 = rb2.velocity;
+                // const v1 = rb1.velocity;
+                // const v2 = rb2.velocity;
+                //
+                // const normal1 = collision.colliders[0].transform.rotate(collision.contactInfo.normals[0]).normalize();
+                // const normal2 = collision.colliders[1].transform.rotate(collision.contactInfo.normals[1]).normalize();
+                //
+                // const vrel = v2.sub(v1);
+                // const vn1 = vrel.dot(normal1);
+                // const vn2 = vrel.dot(normal2);
+                //
+                // var invMass: f32 = 0.0;
+                // if (rb1.mass != 0.0) invMass += 1.0 / rb1.mass;
+                // if (rb2.mass != 0.0) invMass += 1.0 / rb2.mass;
+                // const impulse = (vn2 - vn1) / invMass;
 
-                const normal1 = collision.colliders[0].transform.rotate(collision.contactInfo.normals[0]).normalize();
-                const normal2 = collision.colliders[1].transform.rotate(collision.contactInfo.normals[1]).normalize();
-
-                const vrel = v2.sub(v1);
-                const vn1 = vrel.dot(normal1);
-                const vn2 = vrel.dot(normal2);
-
-                var invMass: f32 = 0.0;
-                if (rb1.mass != 0.0) invMass += 1.0 / rb1.mass;
-                if (rb2.mass != 0.0) invMass += 1.0 / rb2.mass;
-                const impulse = (vn2 - vn1) / invMass;
-
-                if (rb1.mass != 0.0) {
-                    rb1.applyForce(normal2.scale(rb1.elasticity * impulse * 1.0 / dt), Vec2.zero());
-
-                    const correction = normal2.scale(collision.contactInfo.depth * rb1.mass * invMass);
-                    var collider = &self.colliderList.items[collision.colliderIds[0]];
-                    collider.transform.translation.addMut(correction);
-                }
-
-                if (rb2.mass != 0.0) {
-                    rb2.applyForce(normal1.scale(rb2.elasticity * impulse * 1.0 / dt), Vec2.zero());
-
-                    const correction = normal1.scale(collision.contactInfo.depth * rb2.mass * invMass);
-                    var collider = &self.colliderList.items[collision.colliderIds[1]];
-                    collider.transform.translation.addMut(correction);
-                }
+                // if (rb1.mass != 0.0) {
+                //     rb1.applyForce(normal2.scale(rb1.elasticity * impulse * 1.0 / dt), Vec2.zero());
+                //
+                //     const correction = normal2.scale(collision.contactInfo.depth * rb1.mass * invMass);
+                //     var collider = &self.colliderList.items[collision.colliderIds[0]];
+                //     collider.transform.translation.addMut(correction);
+                // }
+                //
+                // if (rb2.mass != 0.0) {
+                //     rb2.applyForce(normal1.scale(rb2.elasticity * impulse * 1.0 / dt), Vec2.zero());
+                //
+                //     const correction = normal1.scale(collision.contactInfo.depth * rb2.mass * invMass);
+                //     var collider = &self.colliderList.items[collision.colliderIds[1]];
+                //     collider.transform.translation.addMut(correction);
+                // }
             }
         }
     }
