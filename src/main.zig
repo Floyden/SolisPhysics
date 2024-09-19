@@ -51,9 +51,9 @@ pub fn createSimpleScene(world: *PhysicsWorld) void {
     const c2 = world.addCollider(Collider2D.new(shape2, transform2));
     const c3 = world.addCollider(Collider2D.new(shape3, transform3));
 
-    _ = world.addRigidBody(RigidBody.new(c1, 1.0));
-    _ = world.addRigidBody(RigidBody.new(c2, 0.0));
-    _ = world.addRigidBody(RigidBody.new(c3, 0.0));
+    _ = world.addRigidBody(RigidBody.new(c1, 1.0, shape1.calculateInertia(1.0)));
+    _ = world.addRigidBody(RigidBody.new(c2, 0.0, 0.0));
+    _ = world.addRigidBody(RigidBody.new(c3, 0.0, 0.0));
 }
 
 pub fn createMassScene(world: *PhysicsWorld) void {
@@ -65,7 +65,7 @@ pub fn createMassScene(world: *PhysicsWorld) void {
             const y = @as(f32, @floatFromInt(k * 10)) + 200.0;
             const transform = Isometry2D.new(Vec2.new(x, y), Vec2.right());
             const collider = world.addCollider(Collider2D.new(shape, transform));
-            _ = world.addRigidBody(RigidBody.new(collider, 1.0));
+            _ = world.addRigidBody(RigidBody.new(collider, 1.0, shape.calculateInertia(1.0)));
         }
     }
 
@@ -75,10 +75,10 @@ pub fn createMassScene(world: *PhysicsWorld) void {
     const leftT = Isometry2D.new(Vec2.new(10.0, 240.0), Vec2.up());
     const rightT = Isometry2D.new(Vec2.new(590.0, 240.0), Vec2.up());
 
-    _ = world.addRigidBody(RigidBody.new(world.addCollider(Collider2D.new(walls, bottomT)), 0.0));
-    _ = world.addRigidBody(RigidBody.new(world.addCollider(Collider2D.new(walls, topT)), 0.0));
-    _ = world.addRigidBody(RigidBody.new(world.addCollider(Collider2D.new(walls, leftT)), 0.0));
-    _ = world.addRigidBody(RigidBody.new(world.addCollider(Collider2D.new(walls, rightT)), 0.0));
+    _ = world.addRigidBody(RigidBody.new(world.addCollider(Collider2D.new(walls, bottomT)), 0.0, 0.0));
+    _ = world.addRigidBody(RigidBody.new(world.addCollider(Collider2D.new(walls, topT)), 0.0, 0.0));
+    _ = world.addRigidBody(RigidBody.new(world.addCollider(Collider2D.new(walls, leftT)), 0.0, 0.0));
+    _ = world.addRigidBody(RigidBody.new(world.addCollider(Collider2D.new(walls, rightT)), 0.0, 0.0));
 }
 
 pub fn main() !void {

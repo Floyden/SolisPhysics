@@ -11,8 +11,9 @@ pub const RigidBody = struct {
     torque: f32,
     mass: f32,
     elasticity: f32,
+    inertia: f32,
 
-    pub fn new(collider: u64, mass: f32) RigidBody {
+    pub fn new(collider: u64, mass: f32, inertia: f32) RigidBody {
         return RigidBody{
             .colliderId = collider,
             .velocity = Vec2.zero(),
@@ -21,6 +22,7 @@ pub const RigidBody = struct {
             .torque = 0,
             .mass = mass,
             .elasticity = 1.0,
+            .inertia = inertia,
         };
     }
 
@@ -148,7 +150,6 @@ pub const PhysicsWorld = struct {
                 const vrel = v2.sub(v1);
                 const vn1 = vrel.dot(normal1);
                 const vn2 = vrel.dot(normal2);
-
 
                 var invMass: f32 = 0.0;
                 if (rb1.mass != 0.0) invMass += 1.0 / rb1.mass;

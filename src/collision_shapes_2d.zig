@@ -46,4 +46,31 @@ pub const CollisionShape = union(enum) {
     pub fn newRectangle(halfWidth: f32, halfHeight: f32) @This() {
         return @This(){ .rectangle = Rectangle.new(halfWidth, halfHeight) };
     }
+
+    pub fn calculateInertia(self: CollisionShape, mass: f32) f32 {
+        switch (self) {
+            CollisionShape.line => |line| {
+                return mass * line.length * line.length / 12.0;
+            },
+            CollisionShape.rectangle => |rect| {
+                // m(w^2 + h^2) / 12 = m((2*halfWidth)^2 + (2*halfHeight)^2) / 12
+                return mass * (rect.halfWidth * rect.halfWidth + rect.halfHeight * rect.halfHeight) / 3.0;
+            },
+            CollisionShape.sphere => |sphere| {
+                // m(w^2 + h^2) / 12 = m((2*halfWidth)^2 + (2*halfHeight)^2) / 12
+                return 0.5 * mass * sphere.radius * sphere.radius;
+            },
+            CollisionShape.capsule => |capsule| {
+                const rr = capsule.radius * capsule.radius;
+                const hh = capsule.height * capsule.height;
+                const circleInertia = 0.5 * (rr + hh);
+                const rectInertia = (4.0 * rr + hh) / 12.0;
+                return mass * (circleInertia + rectInertia);
+            },
+            else => {
+                return 1.0;
+            },
+        }
+        return 1.0;
+    }
 };
